@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kindle-keijiban-v0.5-pwa-1';
+const CACHE_NAME = 'kindle-keijiban-v0.5-pwa-fixed-3';
 
 const LOCAL_ASSETS = [
   './',
@@ -36,21 +36,18 @@ self.addEventListener('fetch', event => {
 
   event.respondWith(
     caches.match(event.request).then(cached => {
-      if (cached) return cached;
-
-      return fetch(event.request).then(response => {
-        if (!response || (!response.ok && response.type !== 'opaque')) {
-          return response;
+      const networkFetch = fetch(event.request).then(response => {
+        if (response && (response.ok || response.type === 'opaque')) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         }
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         return response;
-      }).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-        throw new Error('Offline and resource not cached');
       });
+
+      if (event.request.mode === 'navigate') {
+        return networkFetch.catch(() => cached || caches.match('./index.html'));
+      }
+      return cached || networkFetch;
     })
   );
 });
