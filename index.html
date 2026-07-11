@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kindle掲示板 v0.5</title>
+<meta name="theme-color" content="#263b36">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kindle掲示板">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+
+<style>
+:root{
+  --bg:#eef1f4; --panel:#ffffff; --line:#c7ccd1; --text:#1b1d1f;
+  --accent:#2f5d50; --accent2:#e7f0ed; --shadow:0 6px 20px rgba(0,0,0,.10);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI",sans-serif;color:var(--text);background:var(--bg)}
+button,select,input,textarea{font:inherit}
+header{
+  height:58px;display:flex;align-items:center;gap:12px;padding:0 16px;
+  background:#263b36;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18)
+}
+header h1{font-size:20px;margin:0;font-weight:700}
+header .ver{font-size:12px;opacity:.75}
+header .spacer{flex:1}
+header button{border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:8px;padding:8px 12px}
+main{height:calc(100% - 58px);display:grid;grid-template-columns:minmax(320px,1fr) minmax(360px,1fr);gap:12px;padding:12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);min-height:0;overflow:hidden}
+.editor-panel{display:grid;grid-template-rows:auto 1fr auto}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px;border-bottom:1px solid var(--line);background:#f8f9fa}
+.field{display:flex;align-items:center;gap:5px;font-size:13px}
+.field select,.field input{border:1px solid #aeb5bb;border-radius:7px;padding:6px 8px;background:#fff}
+textarea{
+  width:100%;height:100%;resize:none;border:0;outline:0;padding:16px;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:15px;line-height:1.55
+}
+.statusbar{padding:7px 12px;border-top:1px solid var(--line);font-size:12px;color:#62686d;background:#fafafa;display:flex;justify-content:space-between}
+.preview-panel{display:grid;grid-template-rows:auto 1fr}
+.preview-head{padding:10px 14px;border-bottom:1px solid var(--line);background:#f8f9fa;display:flex;align-items:center;justify-content:space-between}
+.preview-head strong{font-size:14px}
+.preview-wrap{overflow:auto;padding:20px;display:flex;justify-content:center;align-items:flex-start;background:#d9dde0}
+.kindle-frame{
+  width:min(100%,660px);aspect-ratio:1264/1680;background:#1d1f20;border-radius:22px;padding:28px 22px 34px;
+  box-shadow:0 14px 35px rgba(0,0,0,.28);position:relative
+}
+.kindle-frame:after{content:"kindle";position:absolute;bottom:9px;left:0;right:0;text-align:center;color:#888;font-size:13px;letter-spacing:1px}
+.kindle-screen{
+  width:100%;height:100%;background:#f7f7f2;overflow:hidden;padding:7%;box-shadow:inset 0 0 12px rgba(0,0,0,.22);
+  color:#111;filter:grayscale(1)
+}
+.kindle-screen.dark{background:#121212;color:#f5f5f5}
+.kindle-screen.serif{font-family:"Yu Mincho","Hiragino Mincho ProN",serif}
+.kindle-screen.sans{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",sans-serif}
+.kindle-screen.mono{font-family:"SFMono-Regular",Consolas,monospace}
+.kindle-screen h1{font-size:2em;line-height:1.25;margin:.1em 0 .7em;border-bottom:3px solid currentColor;padding-bottom:.18em}
+.kindle-screen h2{font-size:1.45em;margin:1em 0 .5em}
+.kindle-screen p{margin:.55em 0;line-height:1.55}
+.kindle-screen ul{padding-left:1.5em;line-height:1.55}
+.kindle-screen hr{border:0;border-top:2px solid currentColor;margin:1em 0}
+.kindle-screen table{border-collapse:collapse;width:100%;margin:.8em 0;font-size:.92em}
+.kindle-screen th,.kindle-screen td{border:1.5px solid currentColor;padding:.42em .55em;vertical-align:top}
+.kindle-screen th{font-weight:700;background:rgba(127,127,127,.14)}
+.fit-content{width:100%;transform-origin:top left;will-change:transform}
+.notice{font-size:12px;color:#666}
+.primary{background:var(--accent)!important;color:white!important;border-color:var(--accent)!important}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.58}
+#sendBtn{min-width:124px;font-weight:700}
+@media(max-width:850px){
+  main{grid-template-columns:1fr;grid-template-rows:minmax(360px,48%) minmax(420px,52%);height:auto;min-height:calc(100% - 58px)}
+  .panel{min-height:420px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Kindle掲示板</h1><span class="ver">v0.5</span>
+  <div class="spacer"></div>
+  <button id="sampleBtn">例文</button>
+  <button id="newBtn">新規</button>
+  <button id="sendBtn" class="primary" title="現在のプレビューを表紙にしたEPUBを生成します">Kindleへ送る</button>
+</header>
+
+<main>
+<section class="panel editor-panel">
+  <div class="toolbar">
+    <label class="field">フォント
+      <select id="fontSel">
+        <option value="sans">ゴシック</option>
+        <option value="serif">明朝</option>
+        <option value="mono">等幅</option>
+      </select>
+    </label>
+    <label class="field">サイズ
+      <select id="sizeSel">
+        <option value="14">小</option>
+        <option value="17" selected>中</option>
+        <option value="21">大</option>
+        <option value="26">特大</option>
+      </select>
+    </label>
+    <label class="field">背景
+      <select id="themeSel">
+        <option value="light">白</option>
+        <option value="dark">黒</option>
+      </select>
+    </label>
+    <label class="field">余白
+      <select id="marginSel">
+        <option value="4">狭い</option>
+        <option value="7" selected>標準</option>
+        <option value="10">広い</option>
+      </select>
+    </label>
+  </div>
+
+  <textarea id="source" spellcheck="false" aria-label="掲示内容入力" placeholder="ここへ掲示内容を入力してください"></textarea>
+
+  <div class="statusbar">
+    <span id="count">0文字</span>
+    <span>書く → 見る → Kindleへ送る</span>
+  </div>
+</section>
+
+<section class="panel preview-panel">
+  <div class="preview-head">
+    <strong>Kindle画面プレビュー</strong>
+    <span id="previewNotice" class="notice">全体表示</span>
+  </div>
+  <div class="preview-wrap">
+    <div class="kindle-frame">
+      <article id="preview" class="kindle-screen sans"></article>
+    </div>
+  </div>
+</section>
+</main>
+
+<script src="jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+const starter = `# タイトル
+
+ここへ入力してください。`;
+
+const sample = `# 本日の予定
+
+| 時刻 | 内容 | 備考 |
+|:---:|:---|---:|
+| 10:00 | 外出 | 30分 |
+| 13:30 | ゴルフ | 4時間 |
+| 17:00 | 帰宅予定<br>荷物確認 | |
+
+## 連絡事項
+
+- 荷物は玄関横へお願いします
+- 緊急時は携帯電話へ連絡してください
+
+---
+
+本日もよろしくお願いします。`;
+
+const source = document.getElementById('source');
+const preview = document.getElementById('preview');
+const fontSel = document.getElementById('fontSel');
+const sizeSel = document.getElementById('sizeSel');
+const themeSel = document.getElementById('themeSel');
+const marginSel = document.getElementById('marginSel');
+const count = document.getElementById('count');
+const previewNotice = document.getElementById('previewNotice');
+const FIT_SAFETY = 0.94;
+
+function esc(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function inline(s){
+  const brToken='__KINDLE_BOARD_BR__';
+  return esc(s.replace(/<br\s*\/?>/gi,brToken))
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replaceAll(brToken,'<br>');
+}
+
+function parseMarkdown(text){
+  const lines = text.replace(/\r/g,'').split('\n');
+  let html='', i=0, inList=false;
+
+  const closeList=()=>{ if(inList){ html+='</ul>'; inList=false; } };
+
+  while(i<lines.length){
+    const line=lines[i];
+
+    if(/^#\s+/.test(line)){ closeList(); html+=`<h1>${inline(line.replace(/^#\s+/,''))}</h1>`; i++; continue; }
+    if(/^##\s+/.test(line)){ closeList(); html+=`<h2>${inline(line.replace(/^##\s+/,''))}</h2>`; i++; continue; }
+    if(/^---+$/.test(line.trim())){ closeList(); html+='<hr>'; i++; continue; }
+
+    if(/^\s*[-*]\s+/.test(line)){
+      if(!inList){ html+='<ul>'; inList=true; }
+      html+=`<li>${inline(line.replace(/^\s*[-*]\s+/,''))}</li>`;
+      i++; continue;
+    }
+
+    if(line.includes('|') && i+1<lines.length && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(lines[i+1])){
+      closeList();
+      const rows=[];
+      const splitRow = r => r.trim().replace(/^\||\|$/g,'').split('|').map(v=>v.trim());
+      const head=splitRow(line);
+      const separators=splitRow(lines[i+1]);
+      const aligns=separators.map(v=>{
+        const left=v.startsWith(':');
+        const right=v.endsWith(':');
+        return left && right ? 'center' : right ? 'right' : 'left';
+      });
+      const columnCount=Math.max(head.length,separators.length);
+      while(head.length<columnCount) head.push('');
+      while(aligns.length<columnCount) aligns.push('left');
+      i+=2;
+      while(i<lines.length && lines[i].includes('|') && lines[i].trim()!==''){
+        const row=splitRow(lines[i]);
+        while(row.length<columnCount) row.push('');
+        rows.push(row.slice(0,columnCount));
+        i++;
+      }
+      html+='<table><thead><tr>'+head.map((c,idx)=>`<th style="text-align:${aligns[idx]}">${inline(c)}</th>`).join('')+'</tr></thead><tbody>';
+      html+=rows.map(r=>'<tr>'+r.map((c,idx)=>`<td style="text-align:${aligns[idx]}">${inline(c)}</td>`).join('')+'</tr>').join('');
+      html+='</tbody></table>';
+      continue;
+    }
+
+    closeList();
+    if(line.trim()===''){ html+='<div style="height:.45em"></div>'; }
+    else if(/^\[[a-z]+=/i.test(line.trim())){ /* 設定記法は表示しない */ }
+    else { html+=`<p>${inline(line)}</p>`; }
+    i++;
+  }
+  closeList();
+  return html || '<p style="opacity:.55">ここにプレビューが表示されます。</p>';
+}
+
+function fitContentToSheet(sheet, content, safety=FIT_SAFETY){
+  content.style.transform='none';
+
+  const cs=getComputedStyle(sheet);
+  const horizontalPadding=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
+  const verticalPadding=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+  const availableWidth=Math.max(1,sheet.clientWidth-horizontalPadding);
+  const availableHeight=Math.max(1,(sheet.clientHeight-verticalPadding)*safety);
+  const contentWidth=Math.max(1,content.scrollWidth);
+  const contentHeight=Math.max(1,content.scrollHeight);
+  const scale=Math.min(1,availableWidth/contentWidth,availableHeight/contentHeight);
+
+  content.style.transform=`scale(${scale})`;
+  return scale;
+}
+
+function render(){
+  preview.innerHTML='<div class="fit-content">'+parseMarkdown(source.value)+'</div>';
+  preview.className='kindle-screen '+fontSel.value+(themeSel.value==='dark'?' dark':'');
+  preview.style.fontSize=sizeSel.value+'px';
+  preview.style.padding=marginSel.value+'%';
+  count.textContent=source.value.length+'文字';
+  localStorage.setItem('kindleBoardDraft',source.value);
+  localStorage.setItem('kindleBoardSettings',JSON.stringify({
+    font:fontSel.value,size:sizeSel.value,theme:themeSel.value,margin:marginSel.value
+  }));
+
+  requestAnimationFrame(()=>{
+    const content=preview.querySelector('.fit-content');
+    if(!content) return;
+    const scale=fitContentToSheet(preview,content);
+    previewNotice.textContent=scale<0.995 ? `全体表示 ${Math.round(scale*100)}%` : '全体表示 100%';
+  });
+}
+
+[source,fontSel,sizeSel,themeSel,marginSel].forEach(el=>el.addEventListener('input',render));
+
+document.getElementById('sampleBtn').onclick=()=>{
+  if(source.value.trim() && source.value!==sample &&
+     !confirm('現在の入力内容を例文に置き換えますか？')) return;
+  source.value=sample;
+  render();
+  source.focus();
+};
+
+document.getElementById('newBtn').onclick=()=>{
+  if(source.value.trim() && source.value!==starter &&
+     !confirm('現在の入力内容を破棄して、新しい掲示物を作成しますか？')) return;
+  source.value=starter;
+  render();
+  source.focus();
+  source.setSelectionRange(2,5);
+};
+
+function xmlEscape(s){
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'
+  }[c]));
+}
+
+function getDocumentTitle(){
+  const firstHeading = source.value.split(/\r?\n/)
+    .map(v => v.trim())
+    .find(v => /^#\s+/.test(v));
+  const title = firstHeading ? firstHeading.replace(/^#\s+/, '').trim() : 'Kindle掲示板';
+  return title || 'Kindle掲示板';
+}
+
+function safeFileName(name){
+  return name.replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,' ').trim().slice(0,60) || 'Kindle掲示板';
+}
+
+async function makeCoverPng(){
+  if(typeof html2canvas === 'undefined'){
+    throw new Error('画像生成ライブラリを読み込めませんでした。通信状態を確認してください。');
+  }
+
+  const stage = document.createElement('div');
+  stage.style.cssText = [
+    'position:fixed','left:-10000px','top:0',
+    'width:1264px','height:1680px','overflow:hidden',
+    'background:' + (themeSel.value === 'dark' ? '#121212' : '#f7f7f2'),
+    'z-index:-1'
+  ].join(';');
+
+  const sheet = document.createElement('article');
+  sheet.className = 'kindle-screen ' + fontSel.value + (themeSel.value === 'dark' ? ' dark' : '');
+  sheet.style.cssText = [
+    'width:1264px','height:1680px','overflow:hidden',
+    'box-sizing:border-box',
+    'font-size:' + (Number(sizeSel.value) * 3.05) + 'px',
+    'padding:' + marginSel.value + '%',
+    'box-shadow:none'
+  ].join(';');
+
+  const content = document.createElement('div');
+  content.className='fit-content';
+  content.innerHTML = parseMarkdown(source.value);
+  sheet.appendChild(content);
+
+  stage.appendChild(sheet);
+  document.body.appendChild(stage);
+  try{
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    fitContentToSheet(sheet,content);
+
+    const canvas = await html2canvas(sheet,{
+      width:1264,
+      height:1680,
+      scale:1,
+      backgroundColor: themeSel.value === 'dark' ? '#121212' : '#f7f7f2',
+      useCORS:true,
+      logging:false
+    });
+    const blob = await new Promise((resolve,reject)=>{
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error('表紙画像を生成できませんでした。')), 'image/png');
+    });
+    return blob;
+  } finally {
+    stage.remove();
+  }
+}
+
+async function buildEpub(){
+  if(typeof JSZip === 'undefined'){
+    throw new Error('EPUB生成ライブラリを読み込めませんでした。通信状態を確認してください。');
+  }
+
+  const title = getDocumentTitle();
+  const uid = 'kindle-board-' + Date.now();
+  const modified = new Date().toISOString().replace(/\.\d{3}Z$/,'Z');
+  const coverBlob = await makeCoverPng();
+
+  const zip = new JSZip();
+  zip.file('mimetype','application/epub+zip',{compression:'STORE'});
+
+  zip.folder('META-INF').file('container.xml',
+`<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <rootfiles>
+    <rootfile full-path="EPUB/package.opf" media-type="application/oebps-package+xml"/>
+  </rootfiles>
+</container>`);
+
+  const epub = zip.folder('EPUB');
+  epub.file('cover.png', coverBlob);
+
+  epub.file('cover.xhtml',
+`<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+  <title>${xmlEscape(title)}</title>
+  <meta name="viewport" content="width=1264,height=1680"/>
+  <style>
+    html,body{margin:0;padding:0;width:100%;height:100%;background:#fff}
+    img{display:block;width:100%;height:100%;object-fit:contain}
+  </style>
+</head>
+<body epub:type="cover">
+  <img src="cover.png" alt="${xmlEscape(title)}"/>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(err => {
+      console.warn('Service Worker registration failed:', err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>`);
+
+  epub.file('nav.xhtml',
+`<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head><title>目次</title></head>
+<body>
+<nav epub:type="toc">
+  <ol><li><a href="cover.xhtml">${xmlEscape(title)}</a></li></ol>
+</nav>
+</body>
+</html>`);
+
+  epub.file('package.opf',
+`<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="book-id">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="book-id">${xmlEscape(uid)}</dc:identifier>
+    <dc:title>${xmlEscape(title)}</dc:title>
+    <dc:language>ja</dc:language>
+    <dc:creator>Kindle掲示板</dc:creator>
+    <meta property="dcterms:modified">${modified}</meta>
+    <meta name="cover" content="cover-image"/>
+  </metadata>
+  <manifest>
+    <item id="cover-image" href="cover.png" media-type="image/png" properties="cover-image"/>
+    <item id="cover-page" href="cover.xhtml" media-type="application/xhtml+xml"/>
+    <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+  </manifest>
+  <spine>
+    <itemref idref="cover-page"/>
+  </spine>
+</package>`);
+
+  const blob = await zip.generateAsync({
+    type:'blob',
+    mimeType:'application/epub+zip',
+    compression:'DEFLATE',
+    compressionOptions:{level:6}
+  });
+  return {blob,title};
+}
+
+async function shareOrDownloadEpub(blob,title){
+  const filename = safeFileName(title) + '.epub';
+  const file = new File([blob], filename, {type:'application/epub+zip'});
+
+  if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+    try{
+      await navigator.share({
+        title:title,
+        text:'Kindle掲示板で作成した掲示物です。',
+        files:[file]
+      });
+      return 'shared';
+    }catch(err){
+      if(err && err.name === 'AbortError') return 'cancelled';
+      // 共有が失敗した場合は保存へフォールバック
+    }
+  }
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+  return 'downloaded';
+}
+
+document.getElementById('sendBtn').onclick=async()=>{
+  const btn = document.getElementById('sendBtn');
+  if(!source.value.trim()){
+    alert('掲示内容を入力してください。');
+    source.focus();
+    return;
+  }
+
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '作成中…';
+
+  try{
+    const {blob,title} = await buildEpub();
+    btn.textContent = '共有中…';
+    const result = await shareOrDownloadEpub(blob,title);
+    if(result === 'downloaded'){
+      alert('EPUBを保存しました。保存したファイルをSend to Kindleで送信してください。');
+    }
+  }catch(err){
+    console.error(err);
+    alert('EPUBを作成できませんでした。\n' + (err && err.message ? err.message : err));
+  }finally{
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+};
+
+try{
+  const draft=localStorage.getItem('kindleBoardDraft');
+  const settings=JSON.parse(localStorage.getItem('kindleBoardSettings')||'{}');
+  source.value=draft!==null?draft:starter;
+  if(settings.font)fontSel.value=settings.font;
+  if(settings.size)sizeSel.value=settings.size;
+  if(settings.theme)themeSel.value=settings.theme;
+  if(settings.margin)marginSel.value=settings.margin;
+}catch(e){ source.value=starter; }
+render();
+</script>
+</body>
+</html>
