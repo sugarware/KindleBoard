@@ -242,8 +242,16 @@ function parseMarkdown(text){
   return html || '<p style="opacity:.55">ここにプレビューが表示されます。</p>';
 }
 
-function fitContentToSheet(sheet, content, safety=FIT_SAFETY){
+function fitContentToSheet(sheet, content, safety=FIT_SAFETY, referenceFontSize=null){
   content.style.transform='none';
+
+  // 文字サイズごとに別々の縮小率を求めると、
+  // 「大」の方が強く縮小されて「小」より小さく見える場合がある。
+  // 最大文字サイズを基準に共通の縮小率を求め、大小関係を維持する。
+  const originalFontSize=sheet.style.fontSize;
+  if(referenceFontSize!==null){
+    sheet.style.fontSize=referenceFontSize+'px';
+  }
 
   const cs=getComputedStyle(sheet);
   const horizontalPadding=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
@@ -253,6 +261,10 @@ function fitContentToSheet(sheet, content, safety=FIT_SAFETY){
   const contentWidth=Math.max(1,content.scrollWidth);
   const contentHeight=Math.max(1,content.scrollHeight);
   const scale=Math.min(1,availableWidth/contentWidth,availableHeight/contentHeight);
+
+  if(referenceFontSize!==null){
+    sheet.style.fontSize=originalFontSize;
+  }
 
   content.style.transform=`scale(${scale})`;
   return scale;
@@ -272,7 +284,7 @@ function render(){
   requestAnimationFrame(()=>{
     const content=preview.querySelector('.fit-content');
     if(!content) return;
-    const scale=fitContentToSheet(preview,content);
+    const scale=fitContentToSheet(preview,content,FIT_SAFETY,26);
     previewNotice.textContent=scale<0.995 ? `全体表示 ${Math.round(scale*100)}%` : '全体表示 100%';
   });
 }
@@ -346,7 +358,7 @@ async function makeCoverPng(){
   document.body.appendChild(stage);
   try{
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-    fitContentToSheet(sheet,content);
+    fitContentToSheet(sheet,content,FIT_SAFETY,26*3.05);
 
     const canvas = await html2canvas(sheet,{
       width:1264,
