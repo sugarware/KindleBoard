@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kindle-keijiban-v0.5-pwa-size-fixed-1';
+const CACHE_NAME = 'kindle-keijiban-v0.5-pwa-preview-fixed-1';
 
 const LOCAL_ASSETS = [
   './',
