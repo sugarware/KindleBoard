@@ -1,7 +1,7 @@
 {
   "name": "Kindle掲示板",
   "short_name": "Kindle掲示板",
-  "description": "掲示内容を作成し、Kindleの電源OFF画面へ表示するためのアプリ v0.5a",
+  "description": "掲示内容を作成し、Kindleの電源OFF画面へ表示するためのアプリ v0.5b",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",

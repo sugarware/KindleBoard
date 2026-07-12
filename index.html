@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kindle掲示板 v0.5a</title>
+<title>Kindle掲示板 v0.5b</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -97,7 +97,7 @@ textarea{
 .kindle-screen table{border-collapse:collapse;width:100%;margin:.8em 0;font-size:.92em}
 .kindle-screen th,.kindle-screen td{border:1.5px solid currentColor;padding:.42em .55em;vertical-align:top}
 .kindle-screen th{font-weight:700;background:rgba(127,127,127,.14)}
-.fit-content{width:100%;transform-origin:top left;will-change:transform}
+.fit-content{width:100%;max-width:100%;transform:none}
 .notice{font-size:12px;color:#666}
 .primary{background:var(--accent)!important;color:white!important;border-color:var(--accent)!important}
 button{cursor:pointer}
@@ -111,7 +111,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 </head>
 <body>
 <header>
-  <h1>Kindle掲示板</h1><span class="ver">v0.5a</span>
+  <h1>Kindle掲示板</h1><span class="ver">v0.5b</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
@@ -285,31 +285,44 @@ function parseMarkdown(text){
   return html || '<p style="opacity:.55">ここにプレビューが表示されます。</p>';
 }
 
-function fitContentToSheet(sheet, content, safety=FIT_SAFETY, referenceFontSize=null){
+function fitContentToSheet(sheet, content, safety=FIT_SAFETY, selectedFontSize=null, referenceFontSize=null){
+  // 内容全体のtransform縮小は横幅まで狭めてしまうため使用しない。
+  // 最大文字サイズを基準に、幅100%のまま収まる共通フォント倍率を二分探索する。
   content.style.transform='none';
+  content.style.width='100%';
 
-  // 文字サイズごとに別々の縮小率を求めると、
-  // 「大」の方が強く縮小されて「小」より小さく見える場合がある。
-  // 最大文字サイズを基準に共通の縮小率を求め、大小関係を維持する。
-  const originalFontSize=sheet.style.fontSize;
-  if(referenceFontSize!==null){
-    sheet.style.fontSize=referenceFontSize+'px';
-  }
+  const selectedBase=selectedFontSize ?? parseFloat(sheet.style.fontSize) ?? 17;
+  const referenceBase=referenceFontSize ?? selectedBase;
 
   const cs=getComputedStyle(sheet);
-  const horizontalPadding=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
   const verticalPadding=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
-  const availableWidth=Math.max(1,sheet.clientWidth-horizontalPadding);
   const availableHeight=Math.max(1,(sheet.clientHeight-verticalPadding)*safety);
-  const contentWidth=Math.max(1,content.scrollWidth);
-  const contentHeight=Math.max(1,content.scrollHeight);
-  const scale=Math.min(1,availableWidth/contentWidth,availableHeight/contentHeight);
 
-  if(referenceFontSize!==null){
-    sheet.style.fontSize=originalFontSize;
+  let low=0.20;
+  let high=1.00;
+
+  for(let i=0;i<14;i++){
+    const mid=(low+high)/2;
+    sheet.style.fontSize=(referenceBase*mid)+'px';
+
+    // レイアウト再計算を確実に発生させる
+    void content.offsetHeight;
+
+    const fitsHeight=content.scrollHeight<=availableHeight;
+    const fitsWidth=content.scrollWidth<=content.clientWidth+1;
+
+    if(fitsHeight && fitsWidth){
+      low=mid;
+    }else{
+      high=mid;
+    }
   }
 
-  content.style.transform=`scale(${scale})`;
+  const scale=Math.min(1,low);
+  sheet.style.fontSize=(selectedBase*scale)+'px';
+  content.style.transform='none';
+  content.style.width='100%';
+
   return scale;
 }
 
@@ -364,7 +377,7 @@ function render(){
   requestAnimationFrame(()=>{
     const content=preview.querySelector('.fit-content');
     if(!content) return;
-    const scale=fitContentToSheet(preview,content,FIT_SAFETY,26*3.05);
+    const scale=fitContentToSheet(preview,content,FIT_SAFETY,Number(sizeSel.value)*3.05,26*3.05);
     previewNotice.textContent=scale<0.995 ? `表紙内容 ${Math.round(scale*100)}%` : '表紙内容 100%';
     scalePreviewCanvas();
   });
@@ -445,7 +458,7 @@ async function makeCoverPng(){
   document.body.appendChild(stage);
   try{
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-    fitContentToSheet(sheet,content,FIT_SAFETY,26*3.05);
+    fitContentToSheet(sheet,content,FIT_SAFETY,Number(sizeSel.value)*3.05,26*3.05);
 
     const canvas = await html2canvas(sheet,{
       width:width,
