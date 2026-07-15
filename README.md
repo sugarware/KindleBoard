@@ -1,3 +1,6 @@
+![スクリーン](https://github.com/sugarware/GolfScore/blob/main/IMG_0840.png)
+# Kindle掲示板
+
 あなたの電子ペーパーKindleを掲示板としても使いませんか. 
 
 簡単なメッセージを作り、それを表紙とするePubファイルをSend to Kindleする事で、
