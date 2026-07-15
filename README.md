@@ -1,4 +1,4 @@
-![スクリーン](https://github.com/sugarware/GolfScore/blob/main/IMG_0840.png)
+![スクリーン](https://github.com/sugarware/KindleBoard/blob/main/IMG_0840.png)
 # Kindle掲示板
 
 あなたの電子ペーパーKindleを掲示板としても使いませんか. 
