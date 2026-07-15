@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kindle掲示板 v0.5c</title>
+<title>Kindle掲示板 v0.5d</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -37,13 +37,7 @@ main{height:calc(100% - 58px - env(safe-area-inset-top));display:grid;grid-templ
 .field select,.field input{border:1px solid #aeb5bb;border-radius:7px;padding:6px 8px;background:#fff}
 textarea{
   width:100%;height:100%;resize:none;border:0;outline:0;padding:16px;
-  font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:15px;line-height:1.55;
-  -webkit-user-select:text;
-  user-select:text;
-  -webkit-touch-callout:default;
-  touch-action:manipulation;
-  caret-color:auto;
-  overscroll-behavior:contain;
+  font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:15px;line-height:1.55
 }
 .statusbar{padding:7px 12px;border-top:1px solid var(--line);font-size:12px;color:#62686d;background:#fafafa;display:flex;justify-content:space-between}
 .preview-panel{display:grid;grid-template-rows:auto 1fr}
@@ -61,9 +55,6 @@ textarea{
   overflow:auto;
   justify-content:flex-start;
   align-items:flex-start;
-}
-.preview-wrap.zoomed .kindle-frame{
-  flex:0 0 auto;
 }
 .kindle-frame{
   width:min(100%,660px);
@@ -132,7 +123,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 </head>
 <body>
 <header>
-  <h1>Kindle掲示板</h1><span class="ver">v0.5c</span>
+  <h1>Kindle掲示板</h1><span class="ver">v0.5d</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
@@ -362,45 +353,61 @@ function getCanvasSize(){
 
 function applyOrientation(){
   const {width,height}=getCanvasSize();
+
   preview.style.width=width+'px';
   preview.style.height=height+'px';
+
+  // 表示面は常に論理サイズそのもの。縮小は外枠全体へ一度だけ掛ける。
+  previewViewport.style.width=width+'px';
+  previewViewport.style.height=height+'px';
+
   if(kindleFrame){
     kindleFrame.classList.toggle('landscape', orientationSel.value==='landscape');
+    kindleFrame.style.width=(width+44)+'px';
+    kindleFrame.style.height=(height+62)+'px';
+    kindleFrame.style.aspectRatio='auto';
   }
 }
 
 function scalePreviewCanvas(){
-  if(!previewViewport || !previewWrap) return;
+  if(!previewWrap || !kindleFrame) return;
   const {width,height}=getCanvasSize();
+  const frameWidth=width+44;
+  const frameHeight=height+62;
 
   if(previewZoomed){
-    preview.style.transform='scale(1)';
-    previewViewport.style.width=width+'px';
-    previewViewport.style.height=height+'px';
     previewWrap.classList.add('zoomed');
     previewZoomBtn.textContent='全体';
+    kindleFrame.style.transform='scale(1)';
+    kindleFrame.style.transformOrigin='top left';
+    kindleFrame.style.flex='0 0 auto';
+    kindleFrame.style.margin='0';
     return;
   }
 
   previewWrap.classList.remove('zoomed');
   previewZoomBtn.textContent='拡大';
+  kindleFrame.style.flex='0 0 auto';
 
-  const wrapStyle=getComputedStyle(previewWrap);
-  const padX=parseFloat(wrapStyle.paddingLeft)+parseFloat(wrapStyle.paddingRight);
-  const padY=parseFloat(wrapStyle.paddingTop)+parseFloat(wrapStyle.paddingBottom);
-  const maxWidth=Math.max(1,previewWrap.clientWidth-padX);
-  const maxHeight=Math.max(1,previewWrap.clientHeight-padY);
-
-  const frameExtraX=44;
-  const frameExtraY=62;
-  const scale=Math.min(
-    maxWidth/(width+frameExtraX),
-    maxHeight/(height+frameExtraY)
+  const cs=getComputedStyle(previewWrap);
+  const maxWidth=Math.max(
+    1,
+    previewWrap.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)
+  );
+  const maxHeight=Math.max(
+    1,
+    previewWrap.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)
   );
 
-  preview.style.transform=`scale(${scale})`;
-  previewViewport.style.width=(width*scale)+'px';
-  previewViewport.style.height=(height*scale)+'px';
+  const scale=Math.min(maxWidth/frameWidth,maxHeight/frameHeight,1);
+  kindleFrame.style.transform=`scale(${scale})`;
+  kindleFrame.style.transformOrigin='center center';
+
+  // transform後の見かけサイズをflex配置へ反映するための包絡サイズ
+  kindleFrame.style.marginLeft=((frameWidth*scale-frameWidth)/2)+'px';
+  kindleFrame.style.marginRight=((frameWidth*scale-frameWidth)/2)+'px';
+  kindleFrame.style.marginTop=((frameHeight*scale-frameHeight)/2)+'px';
+  kindleFrame.style.marginBottom=((frameHeight*scale-frameHeight)/2)+'px';
 }
 
 function render(){
