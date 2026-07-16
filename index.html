@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kindle掲示板 v0.5d</title>
+<title>Kindle掲示板 v0.5e</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -57,19 +57,37 @@ textarea{
   align-items:flex-start;
 }
 .kindle-frame{
-  width:min(100%,660px);
-  aspect-ratio:1352/1804;
-  background:#1d1f20;
-  border-radius:22px;
-  padding:28px 22px 34px;
-  box-shadow:0 14px 35px rgba(0,0,0,.28);
+  background:#1b1f21;
+  border-radius:34px;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.34),
+    inset 0 0 0 2px rgba(255,255,255,.035);
   position:relative;
   box-sizing:border-box;
+  flex:0 0 auto;
 }
-.kindle-frame:after{content:"kindle";position:absolute;bottom:9px;left:0;right:0;text-align:center;color:#888;font-size:13px;letter-spacing:1px}
-.kindle-frame.landscape{
-  width:min(100%,860px);
-  aspect-ratio:1804/1352;
+.kindle-frame:after{
+  content:"kindle";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:28px;
+  text-align:center;
+  color:#8c9092;
+  font-size:28px;
+  letter-spacing:2px;
+  line-height:1;
+}
+.kindle-frame.landscape:after{
+  left:auto;
+  right:28px;
+  top:0;
+  bottom:0;
+  width:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  writing-mode:vertical-rl;
 }
 .preview-viewport.light{background:#f7f7f2}
 .preview-viewport.dark{background:#121212}
@@ -123,7 +141,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 </head>
 <body>
 <header>
-  <h1>Kindle掲示板</h1><span class="ver">v0.5d</span>
+  <h1>Kindle掲示板</h1><span class="ver">v0.5e</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
@@ -351,29 +369,60 @@ function getCanvasSize(){
     : {width:1264,height:1680};
 }
 
-function applyOrientation(){
+function getFrameMetrics(){
   const {width,height}=getCanvasSize();
 
-  preview.style.width=width+'px';
-  preview.style.height=height+'px';
+  if(orientationSel.value==='landscape'){
+    // Paperwhiteを横へ90度回した外観。
+    const top=90;
+    const right=190;
+    const bottom=90;
+    const left=90;
+    return {
+      screenWidth:width,
+      screenHeight:height,
+      top,right,bottom,left,
+      frameWidth:width+left+right,
+      frameHeight:height+top+bottom
+    };
+  }
 
-  // 表示面は常に論理サイズそのもの。縮小は外枠全体へ一度だけ掛ける。
-  previewViewport.style.width=width+'px';
-  previewViewport.style.height=height+'px';
+  const top=90;
+  const right=90;
+  const bottom=190;
+  const left=90;
+  return {
+    screenWidth:width,
+    screenHeight:height,
+    top,right,bottom,left,
+    frameWidth:width+left+right,
+    frameHeight:height+top+bottom
+  };
+}
+
+function applyOrientation(){
+  const m=getFrameMetrics();
+
+  preview.style.width=m.screenWidth+'px';
+  preview.style.height=m.screenHeight+'px';
+
+  previewViewport.style.width=m.screenWidth+'px';
+  previewViewport.style.height=m.screenHeight+'px';
 
   if(kindleFrame){
-    kindleFrame.classList.toggle('landscape', orientationSel.value==='landscape');
-    kindleFrame.style.width=(width+44)+'px';
-    kindleFrame.style.height=(height+62)+'px';
+    const landscape=orientationSel.value==='landscape';
+    kindleFrame.classList.toggle('landscape', landscape);
+    kindleFrame.style.width=m.frameWidth+'px';
+    kindleFrame.style.height=m.frameHeight+'px';
+    kindleFrame.style.padding=
+      m.top+'px '+m.right+'px '+m.bottom+'px '+m.left+'px';
     kindleFrame.style.aspectRatio='auto';
   }
 }
 
 function scalePreviewCanvas(){
   if(!previewWrap || !kindleFrame) return;
-  const {width,height}=getCanvasSize();
-  const frameWidth=width+44;
-  const frameHeight=height+62;
+  const m=getFrameMetrics();
 
   if(previewZoomed){
     previewWrap.classList.add('zoomed');
@@ -399,15 +448,14 @@ function scalePreviewCanvas(){
     previewWrap.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)
   );
 
-  const scale=Math.min(maxWidth/frameWidth,maxHeight/frameHeight,1);
+  const scale=Math.min(maxWidth/m.frameWidth,maxHeight/m.frameHeight,1);
   kindleFrame.style.transform=`scale(${scale})`;
   kindleFrame.style.transformOrigin='center center';
 
-  // transform後の見かけサイズをflex配置へ反映するための包絡サイズ
-  kindleFrame.style.marginLeft=((frameWidth*scale-frameWidth)/2)+'px';
-  kindleFrame.style.marginRight=((frameWidth*scale-frameWidth)/2)+'px';
-  kindleFrame.style.marginTop=((frameHeight*scale-frameHeight)/2)+'px';
-  kindleFrame.style.marginBottom=((frameHeight*scale-frameHeight)/2)+'px';
+  kindleFrame.style.marginLeft=((m.frameWidth*scale-m.frameWidth)/2)+'px';
+  kindleFrame.style.marginRight=((m.frameWidth*scale-m.frameWidth)/2)+'px';
+  kindleFrame.style.marginTop=((m.frameHeight*scale-m.frameHeight)/2)+'px';
+  kindleFrame.style.marginBottom=((m.frameHeight*scale-m.frameHeight)/2)+'px';
 }
 
 function render(){
@@ -585,6 +633,48 @@ async function buildEpub(){
 </body>
 </html>`);
 
+  epub.file('source.xhtml',
+`<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>${xmlEscape(title)} — Markdown原文</title>
+  <meta charset="UTF-8"/>
+  <style>
+    html,body{
+      margin:0;
+      padding:0;
+      background:#fff;
+      color:#111;
+    }
+    body{
+      padding:1.2em;
+      font-family:serif;
+      line-height:1.65;
+    }
+    h1{
+      font-size:1.35em;
+      margin:0 0 1em;
+      padding-bottom:.35em;
+      border-bottom:1px solid #888;
+    }
+    pre{
+      margin:0;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      font-family:monospace;
+      font-size:.95em;
+      line-height:1.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Markdown原文</h1>
+  <pre>${xmlEscape(source.value)}</pre>
+</body>
+</html>`);
+
   epub.file('nav.xhtml',
 `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
@@ -592,7 +682,10 @@ async function buildEpub(){
 <head><title>目次</title></head>
 <body>
 <nav epub:type="toc">
-  <ol><li><a href="cover.xhtml">${xmlEscape(title)}</a></li></ol>
+  <ol>
+    <li><a href="cover.xhtml">${xmlEscape(title)}</a></li>
+    <li><a href="source.xhtml">Markdown原文</a></li>
+  </ol>
 </nav>
 </body>
 </html>`);
@@ -611,10 +704,12 @@ async function buildEpub(){
   <manifest>
     <item id="cover-image" href="cover.png" media-type="image/png" properties="cover-image"/>
     <item id="cover-page" href="cover.xhtml" media-type="application/xhtml+xml"/>
+    <item id="source-page" href="source.xhtml" media-type="application/xhtml+xml"/>
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
   </manifest>
   <spine>
     <itemref idref="cover-page"/>
+    <itemref idref="source-page"/>
   </spine>
 </package>`);
 
