@@ -1,7 +1,7 @@
 ![スクリーン](https://github.com/sugarware/KindleBoard/blob/main/IMG_0843.png)
 # Kindle掲示板
 
-あなたの電子ペーパーKindleを掲示板としても使いませんか？  
+あなたの電子ペーパーKindleを掲示板としても使ってみませんか？  
 
 簡単なメッセージを作り、それを表紙とするePubファイルをSend to Kindleする事で、
 Kindleはあなたのメッセージを電源Off状態で表示してくれます  
