@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kindle掲示板 v0.5e</title>
+<title>Kindle掲示板 v0.5f</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -133,6 +133,7 @@ textarea{
 button{cursor:pointer}
 button:disabled{cursor:not-allowed;opacity:.58}
 #sendBtn{min-width:124px;font-weight:700}
+.notice.warn{color:#b42318;font-weight:700}
 @media(max-width:850px){
   main{grid-template-columns:1fr;grid-template-rows:minmax(360px,48%) minmax(420px,52%);height:auto;min-height:calc(100% - 58px)}
   .panel{min-height:420px}
@@ -141,7 +142,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 </head>
 <body>
 <header>
-  <h1>Kindle掲示板</h1><span class="ver">v0.5e</span>
+  <h1>Kindle掲示板</h1><span class="ver">v0.5f</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
@@ -320,45 +321,37 @@ function parseMarkdown(text){
   return html || '<p style="opacity:.55">ここにプレビューが表示されます。</p>';
 }
 
-function fitContentToSheet(sheet, content, safety=FIT_SAFETY, selectedFontSize=null, referenceFontSize=null){
-  // 内容全体のtransform縮小は横幅まで狭めてしまうため使用しない。
-  // 最大文字サイズを基準に、幅100%のまま収まる共通フォント倍率を二分探索する。
+function fitContentToSheet(sheet, content, safety=FIT_SAFETY, selectedFontSize=null){
+  // v0.5f:
+  // 選択された文字サイズを縦横で共通の絶対サイズとして維持する。
+  // 自動縮小は行わず、収まらない場合は警告だけを返す。
   content.style.transform='none';
   content.style.width='100%';
 
   const selectedBase=selectedFontSize ?? parseFloat(sheet.style.fontSize) ?? 17;
-  const referenceBase=referenceFontSize ?? selectedBase;
+  sheet.style.fontSize=selectedBase+'px';
 
   const cs=getComputedStyle(sheet);
+  const horizontalPadding=parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight);
   const verticalPadding=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+
+  const availableWidth=Math.max(1,sheet.clientWidth-horizontalPadding);
   const availableHeight=Math.max(1,(sheet.clientHeight-verticalPadding)*safety);
 
-  let low=0.20;
-  let high=1.00;
+  void content.offsetHeight;
 
-  for(let i=0;i<14;i++){
-    const mid=(low+high)/2;
-    sheet.style.fontSize=(referenceBase*mid)+'px';
+  const overflowX=content.scrollWidth>availableWidth+1;
+  const overflowY=content.scrollHeight>availableHeight+1;
 
-    // レイアウト再計算を確実に発生させる
-    void content.offsetHeight;
-
-    const fitsHeight=content.scrollHeight<=availableHeight;
-    const fitsWidth=content.scrollWidth<=content.clientWidth+1;
-
-    if(fitsHeight && fitsWidth){
-      low=mid;
-    }else{
-      high=mid;
-    }
-  }
-
-  const scale=Math.min(1,low);
-  sheet.style.fontSize=(selectedBase*scale)+'px';
-  content.style.transform='none';
-  content.style.width='100%';
-
-  return scale;
+  return {
+    fits:!(overflowX||overflowY),
+    overflowX,
+    overflowY,
+    contentWidth:content.scrollWidth,
+    contentHeight:content.scrollHeight,
+    availableWidth,
+    availableHeight
+  };
 }
 
 let previewZoomed=false;
@@ -367,6 +360,33 @@ function getCanvasSize(){
   return orientationSel && orientationSel.value==='landscape'
     ? {width:1680,height:1264}
     : {width:1264,height:1680};
+}
+
+function getPagePaddingPx(){
+  const marginLevel=Number(marginSel.value);
+
+  // 縦横で同じ物理感を保ちながら、向きに応じて配分だけ変える。
+  const base={
+    4:60,
+    7:88,
+    10:118
+  }[marginLevel] || 88;
+
+  if(orientationSel.value==='landscape'){
+    return {
+      top:Math.round(base*0.82),
+      right:Math.round(base*1.08),
+      bottom:Math.round(base*0.82),
+      left:Math.round(base*1.08)
+    };
+  }
+
+  return {
+    top:base,
+    right:base,
+    bottom:base,
+    left:base
+  };
 }
 
 function getFrameMetrics(){
@@ -468,7 +488,11 @@ function render(){
 
   // EPUB表紙と同じ論理座標・同じ文字倍率で描画する
   preview.style.fontSize=(Number(sizeSel.value)*3.05)+'px';
-  preview.style.padding=marginSel.value+'%';
+  {
+    const p=getPagePaddingPx();
+    preview.style.padding=
+      p.top+'px '+p.right+'px '+p.bottom+'px '+p.left+'px';
+  }
   preview.style.backgroundColor=themeSel.value==='dark' ? '#121212' : '#f7f7f2';
 
   count.textContent=source.value.length+'文字';
@@ -484,8 +508,25 @@ function render(){
   requestAnimationFrame(()=>{
     const content=preview.querySelector('.fit-content');
     if(!content) return;
-    const scale=fitContentToSheet(preview,content,FIT_SAFETY,Number(sizeSel.value)*3.05,26*3.05);
-    previewNotice.textContent=scale<0.995 ? `表紙内容 ${Math.round(scale*100)}%` : '表紙内容 100%';
+    const fit=fitContentToSheet(
+      preview,
+      content,
+      FIT_SAFETY,
+      Number(sizeSel.value)*3.05
+    );
+
+    if(fit.fits){
+      previewNotice.textContent='収まり良好';
+      previewNotice.classList.remove('warn');
+    }else{
+      const reason=[
+        fit.overflowX ? '横幅' : '',
+        fit.overflowY ? '高さ' : ''
+      ].filter(Boolean).join('・');
+
+      previewNotice.textContent=`収まりません（${reason}）`;
+      previewNotice.classList.add('warn');
+    }
     scalePreviewCanvas();
   });
 }
@@ -560,7 +601,10 @@ async function makeCoverPng(){
     'width:'+width+'px','height:'+height+'px','overflow:hidden',
     'box-sizing:border-box',
     'font-size:' + (Number(sizeSel.value) * 3.05) + 'px',
-    'padding:' + marginSel.value + '%',
+    'padding:' + (()=>{
+      const p=getPagePaddingPx();
+      return p.top+'px '+p.right+'px '+p.bottom+'px '+p.left+'px';
+    })(),
     'box-shadow:none'
   ].join(';');
 
@@ -573,7 +617,7 @@ async function makeCoverPng(){
   document.body.appendChild(stage);
   try{
     await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-    fitContentToSheet(sheet,content,FIT_SAFETY,Number(sizeSel.value)*3.05,26*3.05);
+    fitContentToSheet(sheet,content,FIT_SAFETY,Number(sizeSel.value)*3.05);
 
     const canvas = await html2canvas(sheet,{
       width:width,
@@ -763,6 +807,25 @@ document.getElementById('sendBtn').onclick=async()=>{
   btn.textContent = '作成中…';
 
   try{
+    const previewContent=preview.querySelector('.fit-content');
+    if(previewContent){
+      const fit=fitContentToSheet(
+        preview,
+        previewContent,
+        FIT_SAFETY,
+        Number(sizeSel.value)*3.05
+      );
+
+      if(!fit.fits){
+        const proceed=confirm(
+          '現在の内容は表紙内に収まりません。\n' +
+          '文字サイズ・余白・向き・内容量を調整することをおすすめします。\n\n' +
+          'このままEPUBを作成しますか？'
+        );
+        if(!proceed) return;
+      }
+    }
+
     const {blob,title} = await buildEpub();
     btn.textContent = '共有中…';
     const result = await shareOrDownloadEpub(blob,title);
