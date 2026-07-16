@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>SleepingKindle v0.6</title>
+<title>SleepingKindle v0.6a</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -152,7 +152,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 </head>
 <body>
 <header>
-  <h1>SleepingKindle</h1><span class="ver">v0.6</span>
+  <h1>SleepingKindle</h1><span class="ver">v0.6a</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
@@ -208,12 +208,23 @@ button:disabled{cursor:not-allowed;opacity:.58}
           <option value="contain">全体表示</option>
         </select>
       </label>
-      <label class="field">文字
+      <label class="field">文字色
+        <select id="textColorSel">
+          <option value="white" selected>白</option>
+          <option value="black">黒</option>
+        </select>
+      </label>
+      <label class="field">縁取り
         <select id="outlineSel">
-          <option value="auto" selected>自動（白＋黒縁）</option>
-          <option value="white">白＋黒縁</option>
-          <option value="black">黒＋白縁</option>
-          <option value="none">縁取りなし</option>
+          <option value="on" selected>あり</option>
+          <option value="off">なし</option>
+        </select>
+      </label>
+      <label class="field">文字揃え
+        <select id="textAlignSel">
+          <option value="left" selected>左</option>
+          <option value="center">中央</option>
+          <option value="right">右</option>
         </select>
       </label>
       <button id="removeImageBtn" class="small-btn" type="button">画像を外す</button>
@@ -284,7 +295,9 @@ const imageTools = document.getElementById('imageTools');
 const imageFile = document.getElementById('imageFile');
 const imageName = document.getElementById('imageName');
 const imageFitSel = document.getElementById('imageFitSel');
+const textColorSel = document.getElementById('textColorSel');
 const outlineSel = document.getElementById('outlineSel');
+const textAlignSel = document.getElementById('textAlignSel');
 const removeImageBtn = document.getElementById('removeImageBtn');
 let backgroundImageData = null;
 let backgroundImageFileName = ''; 
@@ -370,11 +383,14 @@ function applyImageAppearance(sheet){
   sheet.style.backgroundPosition='center';
   sheet.style.backgroundRepeat='no-repeat';
   sheet.classList.remove('outline-white','outline-black','no-outline');
+  sheet.style.textAlign=textAlignSel.value;
   if(isImage){
-    const mode=outlineSel.value;
-    if(mode==='black') sheet.classList.add('outline-black');
-    else if(mode==='none') sheet.classList.add('no-outline');
-    else sheet.classList.add('outline-white');
+    const white=textColorSel.value==='white';
+    sheet.style.color=white ? '#fff' : '#111';
+    if(outlineSel.value==='off') sheet.classList.add('no-outline');
+    else sheet.classList.add(white ? 'outline-white' : 'outline-black');
+  }else{
+    sheet.style.color='';
   }
 }
 
@@ -630,7 +646,9 @@ function render(){
     margin:marginSel.value,
     orientation:orientationSel.value,
     imageFit:imageFitSel.value,
-    outline:outlineSel.value
+    textColor:textColorSel.value,
+    outline:outlineSel.value,
+    textAlign:textAlignSel.value
   }));
 
   requestAnimationFrame(()=>{
@@ -659,7 +677,7 @@ function render(){
   });
 }
 
-[source,fontSel,sizeSel,themeSel,marginSel,orientationSel,imageFitSel,outlineSel].forEach(el=>el.addEventListener('input',render));
+[source,fontSel,sizeSel,themeSel,marginSel,orientationSel,imageFitSel,textColorSel,outlineSel,textAlignSel].forEach(el=>el.addEventListener('input',render));
 
 imageFile.addEventListener('change',async()=>{
   const file=imageFile.files && imageFile.files[0];
@@ -1003,7 +1021,11 @@ try{
   if(settings.margin)marginSel.value=settings.margin;
   if(settings.orientation)orientationSel.value=settings.orientation;
   if(settings.imageFit)imageFitSel.value=settings.imageFit;
-  if(settings.outline)outlineSel.value=settings.outline;
+  if(settings.textColor) textColorSel.value=settings.textColor;
+  else if(settings.outline==='black') textColorSel.value='black';
+  if(settings.outline==='off' || settings.outline==='none') outlineSel.value='off';
+  else outlineSel.value='on';
+  if(settings.textAlign) textAlignSel.value=settings.textAlign;
 }catch(e){ source.value=starter; }
 (async()=>{ await loadBackgroundImage(); render(); })();
 </script>
