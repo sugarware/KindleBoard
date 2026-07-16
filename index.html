@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kindle掲示板 v0.5f</title>
+<title>SleepingKindle v0.6</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Kindle掲示板">
+<meta name="apple-mobile-web-app-title" content="SleepingKindle">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -26,6 +26,16 @@ header{
   background:#263b36;color:#fff;box-shadow:0 2px 10px rgba(0,0,0,.18)
 }
 header h1{font-size:20px;margin:0;font-weight:700}
+.image-tools{display:none;align-items:center;gap:8px;flex-wrap:wrap;width:100%;padding-top:2px}
+.image-tools.active{display:flex}
+.file-button{display:inline-flex;align-items:center;gap:6px;border:1px solid #aeb5bb;border-radius:7px;padding:6px 10px;background:#fff;cursor:pointer}
+.file-button input{display:none}
+.image-name{font-size:12px;color:#5d646a;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.small-btn{border:1px solid #aeb5bb;border-radius:7px;padding:6px 9px;background:#fff}
+.kindle-screen.image-bg{background-color:#f7f7f2;background-repeat:no-repeat;background-position:center;background-size:cover}
+.kindle-screen.outline-white{color:#fff;text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000,0 -2px 0 #000,0 2px 0 #000,-2px 0 0 #000,2px 0 0 #000}
+.kindle-screen.outline-black{color:#000;text-shadow:-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff,0 -2px 0 #fff,0 2px 0 #fff,-2px 0 0 #fff,2px 0 0 #fff}
+.kindle-screen.no-outline{text-shadow:none}
 header .ver{font-size:12px;opacity:.75}
 header .spacer{flex:1}
 header button{border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:8px;padding:8px 12px}
@@ -142,7 +152,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 </head>
 <body>
 <header>
-  <h1>Kindle掲示板</h1><span class="ver">v0.5f</span>
+  <h1>SleepingKindle</h1><span class="ver">v0.6</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
@@ -171,6 +181,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
       <select id="themeSel">
         <option value="light">白</option>
         <option value="dark">黒</option>
+        <option value="image">画像</option>
       </select>
     </label>
     <label class="field">余白
@@ -186,6 +197,27 @@ button:disabled{cursor:not-allowed;opacity:.58}
         <option value="landscape">横</option>
       </select>
     </label>
+    <div id="imageTools" class="image-tools">
+      <label class="file-button">画像を選択
+        <input id="imageFile" type="file" accept="image/jpeg,image/png,image/webp">
+      </label>
+      <span id="imageName" class="image-name">画像未選択</span>
+      <label class="field">表示
+        <select id="imageFitSel">
+          <option value="cover" selected>全面表示</option>
+          <option value="contain">全体表示</option>
+        </select>
+      </label>
+      <label class="field">文字
+        <select id="outlineSel">
+          <option value="auto" selected>自動（白＋黒縁）</option>
+          <option value="white">白＋黒縁</option>
+          <option value="black">黒＋白縁</option>
+          <option value="none">縁取りなし</option>
+        </select>
+      </label>
+      <button id="removeImageBtn" class="small-btn" type="button">画像を外す</button>
+    </div>
   </div>
 
   <textarea id="source" spellcheck="false" aria-label="掲示内容入力" placeholder="ここへ掲示内容を入力してください"></textarea>
@@ -248,10 +280,103 @@ const sizeSel = document.getElementById('sizeSel');
 const themeSel = document.getElementById('themeSel');
 const marginSel = document.getElementById('marginSel');
 const orientationSel = document.getElementById('orientationSel');
+const imageTools = document.getElementById('imageTools');
+const imageFile = document.getElementById('imageFile');
+const imageName = document.getElementById('imageName');
+const imageFitSel = document.getElementById('imageFitSel');
+const outlineSel = document.getElementById('outlineSel');
+const removeImageBtn = document.getElementById('removeImageBtn');
+let backgroundImageData = null;
+let backgroundImageFileName = ''; 
 const kindleFrame = document.querySelector('.kindle-frame');
 const count = document.getElementById('count');
 const previewNotice = document.getElementById('previewNotice');
 const FIT_SAFETY = 0.94;
+
+
+function openImageDb(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open('SleepingKindleDB',1);
+    req.onupgradeneeded=()=>req.result.createObjectStore('assets');
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function saveBackgroundImage(){
+  try{
+    const db=await openImageDb();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('assets','readwrite');
+      tx.objectStore('assets').put({data:backgroundImageData,name:backgroundImageFileName},'background');
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+  }catch(e){ console.warn('画像保存に失敗しました',e); }
+}
+async function loadBackgroundImage(){
+  try{
+    const db=await openImageDb();
+    const value=await new Promise((resolve,reject)=>{
+      const tx=db.transaction('assets','readonly');
+      const req=tx.objectStore('assets').get('background');
+      req.onsuccess=()=>resolve(req.result||null); req.onerror=()=>reject(req.error);
+    });
+    db.close();
+    if(value){ backgroundImageData=value.data; backgroundImageFileName=value.name||'保存画像'; }
+  }catch(e){ console.warn('画像読込に失敗しました',e); }
+}
+async function clearBackgroundImage(){
+  backgroundImageData=null; backgroundImageFileName='';
+  try{
+    const db=await openImageDb();
+    await new Promise((resolve,reject)=>{
+      const tx=db.transaction('assets','readwrite');
+      tx.objectStore('assets').delete('background');
+      tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+  }catch(e){ console.warn('画像削除に失敗しました',e); }
+}
+function processImageFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('画像ファイルを読み込めませんでした。'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('画像形式を認識できませんでした。'));
+      img.onload=()=>{
+        const maxSide=2500;
+        const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));
+        const canvas=document.createElement('canvas');
+        canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+        canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+        const ctx=canvas.getContext('2d');
+        ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL('image/jpeg',0.9));
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function applyImageAppearance(sheet){
+  const isImage=themeSel.value==='image';
+  imageTools.classList.toggle('active',isImage);
+  imageName.textContent=backgroundImageData ? backgroundImageFileName : '画像未選択';
+  sheet.classList.toggle('image-bg',isImage);
+  sheet.style.backgroundImage=isImage && backgroundImageData ? `url("${backgroundImageData}")` : 'none';
+  sheet.style.backgroundSize=imageFitSel.value;
+  sheet.style.backgroundPosition='center';
+  sheet.style.backgroundRepeat='no-repeat';
+  sheet.classList.remove('outline-white','outline-black','no-outline');
+  if(isImage){
+    const mode=outlineSel.value;
+    if(mode==='black') sheet.classList.add('outline-black');
+    else if(mode==='none') sheet.classList.add('no-outline');
+    else sheet.classList.add('outline-white');
+  }
+}
 
 function esc(s){
   return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -481,8 +606,9 @@ function scalePreviewCanvas(){
 function render(){
   applyOrientation();
 
-  preview.innerHTML='<div class="fit-content">'+parseMarkdown(source.value)+'</div>';
+  preview.innerHTML='<div class="fit-content">'+((themeSel.value==='image' && !source.value.trim()) ? '' : parseMarkdown(source.value))+'</div>';
   preview.className='kindle-screen '+fontSel.value+(themeSel.value==='dark'?' dark':'');
+  applyImageAppearance(preview);
   previewViewport.classList.toggle('dark', themeSel.value==='dark');
   previewViewport.classList.toggle('light', themeSel.value!=='dark');
 
@@ -502,7 +628,9 @@ function render(){
     size:sizeSel.value,
     theme:themeSel.value,
     margin:marginSel.value,
-    orientation:orientationSel.value
+    orientation:orientationSel.value,
+    imageFit:imageFitSel.value,
+    outline:outlineSel.value
   }));
 
   requestAnimationFrame(()=>{
@@ -531,7 +659,25 @@ function render(){
   });
 }
 
-[source,fontSel,sizeSel,themeSel,marginSel,orientationSel].forEach(el=>el.addEventListener('input',render));
+[source,fontSel,sizeSel,themeSel,marginSel,orientationSel,imageFitSel,outlineSel].forEach(el=>el.addEventListener('input',render));
+
+imageFile.addEventListener('change',async()=>{
+  const file=imageFile.files && imageFile.files[0];
+  if(!file) return;
+  try{
+    backgroundImageData=await processImageFile(file);
+    backgroundImageFileName=file.name;
+    themeSel.value='image';
+    await saveBackgroundImage();
+    render();
+  }catch(err){ alert(err.message||err); }
+  finally{ imageFile.value=''; }
+});
+removeImageBtn.addEventListener('click',async()=>{
+  await clearBackgroundImage();
+  themeSel.value='light';
+  render();
+});
 
 window.addEventListener('resize', scalePreviewCanvas);
 if('ResizeObserver' in window){
@@ -573,12 +719,12 @@ function getDocumentTitle(){
   const firstHeading = source.value.split(/\r?\n/)
     .map(v => v.trim())
     .find(v => /^#\s+/.test(v));
-  const title = firstHeading ? firstHeading.replace(/^#\s+/, '').trim() : 'Kindle掲示板';
-  return title || 'Kindle掲示板';
+  const title = firstHeading ? firstHeading.replace(/^#\s+/, '').trim() : 'SleepingKindle';
+  return title || 'SleepingKindle';
 }
 
 function safeFileName(name){
-  return name.replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,' ').trim().slice(0,60) || 'Kindle掲示板';
+  return name.replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,' ').trim().slice(0,60) || 'SleepingKindle';
 }
 
 async function makeCoverPng(){
@@ -608,9 +754,11 @@ async function makeCoverPng(){
     'box-shadow:none'
   ].join(';');
 
+  applyImageAppearance(sheet);
+
   const content = document.createElement('div');
   content.className='fit-content';
-  content.innerHTML = parseMarkdown(source.value);
+  content.innerHTML = (themeSel.value==='image' && !source.value.trim()) ? '' : parseMarkdown(source.value);
   sheet.appendChild(content);
 
   stage.appendChild(sheet);
@@ -741,7 +889,7 @@ async function buildEpub(){
     <dc:identifier id="book-id">${xmlEscape(uid)}</dc:identifier>
     <dc:title>${xmlEscape(title)}</dc:title>
     <dc:language>ja</dc:language>
-    <dc:creator>Kindle掲示板</dc:creator>
+    <dc:creator>SleepingKindle</dc:creator>
     <meta property="dcterms:modified">${modified}</meta>
     <meta name="cover" content="cover-image"/>
   </metadata>
@@ -774,7 +922,7 @@ async function shareOrDownloadEpub(blob,title){
     try{
       await navigator.share({
         title:title,
-        text:'Kindle掲示板で作成した掲示物です。',
+        text:'SleepingKindleで作成したKindleスリープ画面です。',
         files:[file]
       });
       return 'shared';
@@ -796,9 +944,13 @@ async function shareOrDownloadEpub(blob,title){
 
 document.getElementById('sendBtn').onclick=async()=>{
   const btn = document.getElementById('sendBtn');
-  if(!source.value.trim()){
-    alert('掲示内容を入力してください。');
+  if(!source.value.trim() && !(themeSel.value==='image' && backgroundImageData)){
+    alert(themeSel.value==='image' ? '背景画像を選択するか、掲示内容を入力してください。' : '掲示内容を入力してください。');
     source.focus();
+    return;
+  }
+  if(themeSel.value==='image' && !backgroundImageData){
+    alert('背景に使用する画像を選択してください。');
     return;
   }
 
@@ -850,8 +1002,10 @@ try{
   if(settings.theme)themeSel.value=settings.theme;
   if(settings.margin)marginSel.value=settings.margin;
   if(settings.orientation)orientationSel.value=settings.orientation;
+  if(settings.imageFit)imageFitSel.value=settings.imageFit;
+  if(settings.outline)outlineSel.value=settings.outline;
 }catch(e){ source.value=starter; }
-render();
+(async()=>{ await loadBackgroundImage(); render(); })();
 </script>
 
 <script>
