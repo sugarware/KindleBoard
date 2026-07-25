@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>SleepingKindle v0.7g</title>
+<title>SleepingKindle v0.7i</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -164,7 +164,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
 </head>
 <body>
 <header>
-  <h1>SleepingKindle</h1><span class="ver">v0.7g</span>
+  <h1>SleepingKindle</h1><span class="ver">v0.7i</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
@@ -425,7 +425,7 @@ function backgroundSizing(sheet){
   const drawW=iw*baseScale*t.scale;
   const drawH=ih*baseScale*t.scale;
   sheet.style.backgroundSize=`${drawW}px ${drawH}px`;
-  sheet.style.backgroundPosition=`calc(50% + ${t.x}px) calc(50% + ${t.y}px)`;
+  sheet.style.backgroundPosition=`${(cw-drawW)/2+t.x}px ${(ch-drawH)/2+t.y}px`;
 }
 function applyImageAppearance(sheet){
   const hasImage=!!backgroundImageData;
@@ -1018,6 +1018,8 @@ async function buildEpub(){
   const uid = 'kindle-board-' + Date.now();
   const modified = new Date().toISOString().replace(/\.\d{3}Z$/,'Z');
   const coverBlob = await makeCoverPng();
+  // SafariでJSZipへBlobを直接渡す際の互換性問題を避ける
+  const coverBytes = new Uint8Array(await coverBlob.arrayBuffer());
 
   const zip = new JSZip();
   zip.file('mimetype','application/epub+zip',{compression:'STORE'});
@@ -1031,7 +1033,7 @@ async function buildEpub(){
 </container>`);
 
   const epub = zip.folder('EPUB');
-  epub.file('cover.png', coverBlob);
+  epub.file('cover.png', coverBytes);
 
   epub.file('cover.xhtml',
 `<?xml version="1.0" encoding="UTF-8"?>
@@ -1143,7 +1145,21 @@ async function shareOrDownloadEpub(blob,title){
   const filename = safeFileName(title) + '.epub';
   const file = new File([blob], filename, {type:'application/epub+zip'});
 
-  if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+  // iPadOS SafariではcanShare({files})自体が例外になる場合があるため、
+  // 能力判定を独立して保護する。
+  let canShareFile = false;
+  if(navigator.share){
+    try{
+      canShareFile = typeof navigator.canShare === 'function'
+        ? navigator.canShare({files:[file]})
+        : false;
+    }catch(err){
+      console.warn('ファイル共有可否の判定に失敗しました。保存へ切り替えます。', err);
+      canShareFile = false;
+    }
+  }
+
+  if(canShareFile){
     try{
       await navigator.share({
         title:title,
@@ -1153,6 +1169,7 @@ async function shareOrDownloadEpub(blob,title){
       return 'shared';
     }catch(err){
       if(err && err.name === 'AbortError') return 'cancelled';
+      console.warn('共有に失敗しました。保存へ切り替えます。', err);
       // 共有が失敗した場合は保存へフォールバック
     }
   }
