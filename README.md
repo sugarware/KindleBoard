@@ -1,4 +1,4 @@
-![スクリーン](https://github.com/sugarware/KindleBoard/blob/main/IMG_0843.png)
+![スクリーン](https://github.com/sugarware/KindleBoard/blob/main/IMG_0874.png)
 # Kindle掲示板
 
 あなたの電子ペーパーKindleを掲示板としても使ってみませんか？  
@@ -12,7 +12,7 @@ Step 3 Kindleで該当のePubファイルを閲覧して、電源を切る
 
 kindleへ送るボタンを押すとアクションメニューが出ますので、メールを選択すればePubファイルが添付されます  
 メールの中で送り先のメアドを設定して送れば完了です  
-iPhone/iPadでは、ショートカットアプリで自分のSend to kindle用のメアドへ添付ファイルを送るショートカットを作り、アクションメニューに登録すれば便利です  
+iPhone/iPadでは、ショートカットアプリで自分のSend to kindle用のメアドへ添付ファイルを送るショートカットを作り、アクションメニューに登録すれば更に便利です  
 
 ## [ここから実行出来ます！🚀](https://sugarware.github.io/KindleBoard)
 
