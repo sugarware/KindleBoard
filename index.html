@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>SleepingKindle v0.6a</title>
+<title>SleepingKindle v0.7g</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -32,7 +32,15 @@ header h1{font-size:20px;margin:0;font-weight:700}
 .file-button input{display:none}
 .image-name{font-size:12px;color:#5d646a;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .small-btn{border:1px solid #aeb5bb;border-radius:7px;padding:6px 9px;background:#fff}
-.kindle-screen.image-bg{background-color:#f7f7f2;background-repeat:no-repeat;background-position:center;background-size:cover}
+.kindle-screen.image-bg{background-repeat:no-repeat;background-position:center;background-size:cover;touch-action:none}
+.kindle-screen.image-bg{touch-action:none;cursor:grab}
+.kindle-screen.image-bg:active{cursor:grabbing}
+.adjust-help{width:100%;padding:7px 9px;border-radius:7px;background:#e7f0ed;color:#234b40;font-size:12px;font-weight:600}
+.segmented{display:inline-flex;border:1px solid #aeb5bb;border-radius:8px;overflow:hidden;background:#fff}
+.segmented button{border:0;border-right:1px solid #aeb5bb;border-radius:0;background:#fff;padding:6px 10px}
+.segmented button:last-child{border-right:0}
+.segmented button.active{background:#2f5d50;color:#fff}
+
 .kindle-screen.outline-white{color:#fff;text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000,0 -2px 0 #000,0 2px 0 #000,-2px 0 0 #000,2px 0 0 #000}
 .kindle-screen.outline-black{color:#000;text-shadow:-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff,0 -2px 0 #fff,0 2px 0 #fff,-2px 0 0 #fff,2px 0 0 #fff}
 .kindle-screen.no-outline{text-shadow:none}
@@ -60,11 +68,6 @@ textarea{
   justify-content:center;
   align-items:center;
   background:#d9dde0;
-}
-.preview-wrap.zoomed{
-  overflow:auto;
-  justify-content:flex-start;
-  align-items:flex-start;
 }
 .kindle-frame{
   background:#1b1f21;
@@ -142,8 +145,17 @@ textarea{
 .primary{background:var(--accent)!important;color:white!important;border-color:var(--accent)!important}
 button{cursor:pointer}
 button:disabled{cursor:not-allowed;opacity:.58}
-#sendBtn{min-width:124px;font-weight:700}
+#sendBtn{min-width:112px;font-weight:700;white-space:nowrap;padding:7px 10px}
+.preview-actions{display:flex;align-items:center;gap:8px;min-width:0}
+.preview-head .notice{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#photoBtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .notice.warn{color:#b42318;font-weight:700}
+@media(max-width:520px){
+  .preview-head{padding:8px 10px}
+  .preview-head strong{font-size:13px}
+  #previewNotice{display:none}
+  #sendBtn{min-width:108px;padding:7px 9px}
+}
 @media(max-width:850px){
   main{grid-template-columns:1fr;grid-template-rows:minmax(360px,48%) minmax(420px,52%);height:auto;min-height:calc(100% - 58px)}
   .panel{min-height:420px}
@@ -152,11 +164,10 @@ button:disabled{cursor:not-allowed;opacity:.58}
 </head>
 <body>
 <header>
-  <h1>SleepingKindle</h1><span class="ver">v0.6a</span>
+  <h1>SleepingKindle</h1><span class="ver">v0.7g</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
-  <button id="sendBtn" class="primary" title="現在のプレビューを表紙にしたEPUBを生成します">Kindleへ送る</button>
 </header>
 
 <main>
@@ -181,9 +192,9 @@ button:disabled{cursor:not-allowed;opacity:.58}
       <select id="themeSel">
         <option value="light">白</option>
         <option value="dark">黒</option>
-        <option value="image">画像</option>
       </select>
     </label>
+    <button id="photoBtn" class="small-btn" type="button" aria-expanded="false">写真</button>
     <label class="field">余白
       <select id="marginSel">
         <option value="4">狭い</option>
@@ -202,12 +213,25 @@ button:disabled{cursor:not-allowed;opacity:.58}
         <input id="imageFile" type="file" accept="image/jpeg,image/png,image/webp">
       </label>
       <span id="imageName" class="image-name">画像未選択</span>
-      <label class="field">表示
-        <select id="imageFitSel">
-          <option value="cover" selected>全面表示</option>
-          <option value="contain">全体表示</option>
+      <label class="field">画像表現
+        <select id="imageModeSel">
+          <option value="photo" selected>写真</option>
+          <option value="pencil">鉛筆画</option>
+          <option value="line">線画</option>
         </select>
       </label>
+      <label class="field">白黒反転
+        <input id="invertImageChk" type="checkbox">
+      </label>
+      <label class="field">E-ink最適化
+        <select id="einkSel">
+          <option value="normal" selected>標準</option>
+          <option value="clear">明瞭</option>
+          <option value="strong">強調</option>
+        </select>
+      </label>
+      <button id="resetImageBtn" class="small-btn" type="button">位置を初期化</button>
+      <div class="adjust-help">プレビュー上でドラッグして移動・ピンチで拡大縮小・ダブルタップで初期化</div>
       <label class="field">文字色
         <select id="textColorSel">
           <option value="white" selected>白</option>
@@ -242,9 +266,9 @@ button:disabled{cursor:not-allowed;opacity:.58}
 <section class="panel preview-panel">
   <div class="preview-head">
     <strong>Kindle画面プレビュー</strong>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span id="previewNotice" class="notice">全体表示</span>
-      <button id="previewZoomBtn" type="button">拡大</button>
+    <div class="preview-actions">
+      <span id="previewNotice" class="notice">確認中</span>
+      <button id="sendBtn" class="primary" title="現在のプレビューを表紙にしたEPUBを生成します">Kindleへ送る</button>
     </div>
   </div>
   <div class="preview-wrap">
@@ -285,22 +309,31 @@ const source = document.getElementById('source');
 const preview = document.getElementById('preview');
 const previewViewport = document.getElementById('previewViewport');
 const previewWrap = document.querySelector('.preview-wrap');
-const previewZoomBtn = document.getElementById('previewZoomBtn');
 const fontSel = document.getElementById('fontSel');
 const sizeSel = document.getElementById('sizeSel');
 const themeSel = document.getElementById('themeSel');
+const photoBtn = document.getElementById('photoBtn');
 const marginSel = document.getElementById('marginSel');
 const orientationSel = document.getElementById('orientationSel');
 const imageTools = document.getElementById('imageTools');
 const imageFile = document.getElementById('imageFile');
 const imageName = document.getElementById('imageName');
-const imageFitSel = document.getElementById('imageFitSel');
+const imageModeSel = document.getElementById('imageModeSel');
+const einkSel = document.getElementById('einkSel');
+const invertImageChk = document.getElementById('invertImageChk');
+const resetImageBtn = document.getElementById('resetImageBtn');
 const textColorSel = document.getElementById('textColorSel');
 const outlineSel = document.getElementById('outlineSel');
 const textAlignSel = document.getElementById('textAlignSel');
 const removeImageBtn = document.getElementById('removeImageBtn');
 let backgroundImageData = null;
-let backgroundImageFileName = ''; 
+let backgroundImageFileName = '';
+let processedImageData = null;
+let sourceImageElement = null;
+const imageTransforms={portrait:{x:0,y:0,scale:1},landscape:{x:0,y:0,scale:1}};
+let gestureState=null;
+let photoToolsOpen=false;
+
 const kindleFrame = document.querySelector('.kindle-frame');
 const count = document.getElementById('count');
 const previewNotice = document.getElementById('previewNotice');
@@ -373,18 +406,40 @@ function processImageFile(file){
     reader.readAsDataURL(file);
   });
 }
+function currentTransform(){
+  return imageTransforms[orientationSel.value] || imageTransforms.portrait;
+}
+function resetCurrentTransform(){
+  imageTransforms[orientationSel.value]={x:0,y:0,scale:1};
+  saveSettingsOnly();
+  render();
+}
+function backgroundSizing(sheet){
+  const t=currentTransform();
+  const size=getCanvasSize();
+  const cw=sheet===preview ? size.width : Math.max(1,sheet.clientWidth||size.width);
+  const ch=sheet===preview ? size.height : Math.max(1,sheet.clientHeight||size.height);
+  const iw=(sourceImageElement&&sourceImageElement.naturalWidth)||cw;
+  const ih=(sourceImageElement&&sourceImageElement.naturalHeight)||ch;
+  const baseScale=Math.min(cw/iw,ch/ih);
+  const drawW=iw*baseScale*t.scale;
+  const drawH=ih*baseScale*t.scale;
+  sheet.style.backgroundSize=`${drawW}px ${drawH}px`;
+  sheet.style.backgroundPosition=`calc(50% + ${t.x}px) calc(50% + ${t.y}px)`;
+}
 function applyImageAppearance(sheet){
-  const isImage=themeSel.value==='image';
-  imageTools.classList.toggle('active',isImage);
-  imageName.textContent=backgroundImageData ? backgroundImageFileName : '画像未選択';
-  sheet.classList.toggle('image-bg',isImage);
-  sheet.style.backgroundImage=isImage && backgroundImageData ? `url("${backgroundImageData}")` : 'none';
-  sheet.style.backgroundSize=imageFitSel.value;
-  sheet.style.backgroundPosition='center';
+  const hasImage=!!backgroundImageData;
+  imageTools.classList.toggle('active',photoToolsOpen);
+  photoBtn.classList.toggle('active',hasImage);
+  photoBtn.setAttribute('aria-expanded',String(photoToolsOpen));
+  imageName.textContent=hasImage ? backgroundImageFileName : '画像未選択';
+  sheet.classList.toggle('image-bg',hasImage);
+  sheet.style.backgroundImage=hasImage && (processedImageData||backgroundImageData) ? `url("${processedImageData||backgroundImageData}")` : 'none';
+  if(hasImage) backgroundSizing(sheet);
   sheet.style.backgroundRepeat='no-repeat';
   sheet.classList.remove('outline-white','outline-black','no-outline');
   sheet.style.textAlign=textAlignSel.value;
-  if(isImage){
+  if(hasImage){
     const white=textColorSel.value==='white';
     sheet.style.color=white ? '#fff' : '#111';
     if(outlineSel.value==='off') sheet.classList.add('no-outline');
@@ -392,6 +447,123 @@ function applyImageAppearance(sheet){
   }else{
     sheet.style.color='';
   }
+}
+function loadImageElement(data){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>reject(new Error('画像を処理できませんでした。'));
+    img.src=data;
+  });
+}
+async function ensureSourceImage(){
+  if(!backgroundImageData) return null;
+  if(sourceImageElement && sourceImageElement.src===backgroundImageData) return sourceImageElement;
+  sourceImageElement=await loadImageElement(backgroundImageData);
+  return sourceImageElement;
+}
+function compileShader(gl,type,source){
+  const sh=gl.createShader(type); gl.shaderSource(sh,source); gl.compileShader(sh);
+  if(!gl.getShaderParameter(sh,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh)||'シェーダーのコンパイルに失敗しました。');
+  return sh;
+}
+async function processImageWithGLSL(){
+  if(!backgroundImageData){ processedImageData=null; return; }
+  const img=await ensureSourceImage();
+  const canvas=document.createElement('canvas');
+  canvas.width=img.naturalWidth; canvas.height=img.naturalHeight;
+  const gl=canvas.getContext('webgl',{preserveDrawingBuffer:true,premultipliedAlpha:false});
+  if(!gl){ processedImageData=backgroundImageData; return; }
+  const vs=`attribute vec2 a; varying vec2 v; void main(){v=(a+1.0)*0.5; gl_Position=vec4(a,0.0,1.0);}`;
+  const fs=`precision mediump float; varying vec2 v; uniform sampler2D u; uniform vec2 px; uniform int mode; uniform int eink; uniform int invertImage;
+  float lum(vec3 c){return dot(c,vec3(0.299,0.587,0.114));}
+  void main(){
+    vec2 uv=vec2(v.x,1.0-v.y);
+    vec3 c=texture2D(u,uv).rgb;
+    float g=lum(c);
+    float gx=0.0; float gy=0.0;
+    gx += -lum(texture2D(u,uv+px*vec2(-1.0,-1.0)).rgb); gx += lum(texture2D(u,uv+px*vec2(1.0,-1.0)).rgb);
+    gx += -2.0*lum(texture2D(u,uv+px*vec2(-1.0,0.0)).rgb); gx += 2.0*lum(texture2D(u,uv+px*vec2(1.0,0.0)).rgb);
+    gx += -lum(texture2D(u,uv+px*vec2(-1.0,1.0)).rgb); gx += lum(texture2D(u,uv+px*vec2(1.0,1.0)).rgb);
+    gy += -lum(texture2D(u,uv+px*vec2(-1.0,-1.0)).rgb); gy += -2.0*lum(texture2D(u,uv+px*vec2(0.0,-1.0)).rgb); gy += -lum(texture2D(u,uv+px*vec2(1.0,-1.0)).rgb);
+    gy += lum(texture2D(u,uv+px*vec2(-1.0,1.0)).rgb); gy += 2.0*lum(texture2D(u,uv+px*vec2(0.0,1.0)).rgb); gy += lum(texture2D(u,uv+px*vec2(1.0,1.0)).rgb);
+    float edge=clamp(length(vec2(gx,gy))*1.7,0.0,1.0);
+    float outv=g;
+    if(mode==1){
+      /* デッサン：面を簡略化し、大小の輪郭と鉛筆状の陰影を合成する。 */
+      float nearMean=0.0;
+      nearMean += lum(texture2D(u,uv+px*vec2(-2.0, 0.0)).rgb);
+      nearMean += lum(texture2D(u,uv+px*vec2(-1.0,-1.0)).rgb)*2.0;
+      nearMean += lum(texture2D(u,uv+px*vec2(-1.0, 0.0)).rgb)*2.0;
+      nearMean += lum(texture2D(u,uv+px*vec2(-1.0, 1.0)).rgb)*2.0;
+      nearMean += lum(texture2D(u,uv+px*vec2( 0.0,-2.0)).rgb);
+      nearMean += lum(texture2D(u,uv+px*vec2( 0.0,-1.0)).rgb)*2.0;
+      nearMean += g*4.0;
+      nearMean += lum(texture2D(u,uv+px*vec2( 0.0, 1.0)).rgb)*2.0;
+      nearMean += lum(texture2D(u,uv+px*vec2( 0.0, 2.0)).rgb);
+      nearMean += lum(texture2D(u,uv+px*vec2( 1.0,-1.0)).rgb)*2.0;
+      nearMean += lum(texture2D(u,uv+px*vec2( 1.0, 0.0)).rgb)*2.0;
+      nearMean += lum(texture2D(u,uv+px*vec2( 1.0, 1.0)).rgb)*2.0;
+      nearMean += lum(texture2D(u,uv+px*vec2( 2.0, 0.0)).rgb);
+      nearMean/=24.0;
+
+      float farMean=0.0;
+      farMean += lum(texture2D(u,uv+px*vec2(-6.0,-6.0)).rgb);
+      farMean += lum(texture2D(u,uv+px*vec2( 0.0,-6.0)).rgb)*2.0;
+      farMean += lum(texture2D(u,uv+px*vec2( 6.0,-6.0)).rgb);
+      farMean += lum(texture2D(u,uv+px*vec2(-6.0, 0.0)).rgb)*2.0;
+      farMean += g*4.0;
+      farMean += lum(texture2D(u,uv+px*vec2( 6.0, 0.0)).rgb)*2.0;
+      farMean += lum(texture2D(u,uv+px*vec2(-6.0, 6.0)).rgb);
+      farMean += lum(texture2D(u,uv+px*vec2( 0.0, 6.0)).rgb)*2.0;
+      farMean += lum(texture2D(u,uv+px*vec2( 6.0, 6.0)).rgb);
+      farMean/=16.0;
+
+      /* 写真の連続階調を鉛筆の濃淡に近い7段階へ整理。 */
+      float tone=mix(g,nearMean,0.72);
+      tone=floor(clamp(tone,0.0,0.999)*7.0+0.5)/7.0;
+      float paper=0.985-(1.0-tone)*0.68;
+
+      /* 細い輪郭と、大きな面の境界を別々に取り出す。 */
+      float fineLine=smoothstep(0.035,0.24,edge);
+      float broadLine=smoothstep(0.035,0.18,abs(nearMean-farMean)*2.5);
+      float detailLine=smoothstep(0.025,0.16,abs(g-nearMean)*3.2);
+      float lineInk=clamp(fineLine*0.48+broadLine*0.34+detailLine*0.28,0.0,1.0);
+
+      /* 暗部だけに薄い交差ハッチングを与える。画面座標ではなく画像座標基準。 */
+      vec2 ip=uv/px;
+      float darkness=clamp((0.72-tone)/0.72,0.0,1.0);
+      float hatchA=1.0-smoothstep(0.10,0.38,abs(fract((ip.x+ip.y)*0.105)-0.5));
+      float hatchB=1.0-smoothstep(0.08,0.34,abs(fract((ip.x-ip.y)*0.075)-0.5));
+      float hatch=hatchA*darkness*0.12+hatchB*smoothstep(0.48,0.88,darkness)*0.10;
+
+      outv=clamp(paper-lineInk*0.56-hatch,0.0,1.0);
+    }
+    else if(mode==2) outv=1.0-smoothstep(0.10,0.34,edge);
+    if(invertImage==1) outv=1.0-outv;
+    float contrast=eink==0?1.0:(eink==1?1.28:1.62);
+    float gamma=eink==2?0.90:0.97;
+    outv=pow(clamp((outv-0.5)*contrast+0.5,0.0,1.0),gamma);
+    gl_FragColor=vec4(vec3(outv),1.0);
+  }`;
+  const prog=gl.createProgram(); gl.attachShader(prog,compileShader(gl,gl.VERTEX_SHADER,vs)); gl.attachShader(prog,compileShader(gl,gl.FRAGMENT_SHADER,fs)); gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog)||'シェーダーをリンクできませんでした。');
+  gl.useProgram(prog);
+  const buf=gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER,buf); gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
+  const a=gl.getAttribLocation(prog,'a'); gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
+  const tex=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D,tex); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);
+  gl.uniform1i(gl.getUniformLocation(prog,'u'),0);
+  gl.uniform2f(gl.getUniformLocation(prog,'px'),1/canvas.width,1/canvas.height);
+  gl.uniform1i(gl.getUniformLocation(prog,'mode'),imageModeSel.value==='pencil'?1:imageModeSel.value==='line'?2:0);
+  gl.uniform1i(gl.getUniformLocation(prog,'eink'),einkSel.value==='clear'?1:einkSel.value==='strong'?2:0);
+  gl.uniform1i(gl.getUniformLocation(prog,'invertImage'),invertImageChk.checked?1:0);
+  gl.viewport(0,0,canvas.width,canvas.height); gl.drawArrays(gl.TRIANGLES,0,6);
+  processedImageData=canvas.toDataURL('image/jpeg',0.92);
+}
+async function rebuildProcessedImage(){
+  try{ await processImageWithGLSL(); }
+  catch(e){ console.warn(e); processedImageData=backgroundImageData; }
+  render();
 }
 
 function esc(s){
@@ -495,7 +667,6 @@ function fitContentToSheet(sheet, content, safety=FIT_SAFETY, selectedFontSize=n
   };
 }
 
-let previewZoomed=false;
 
 function getCanvasSize(){
   return orientationSel && orientationSel.value==='landscape'
@@ -585,20 +756,6 @@ function scalePreviewCanvas(){
   if(!previewWrap || !kindleFrame) return;
   const m=getFrameMetrics();
 
-  if(previewZoomed){
-    previewWrap.classList.add('zoomed');
-    previewZoomBtn.textContent='全体';
-    kindleFrame.style.transform='scale(1)';
-    kindleFrame.style.transformOrigin='top left';
-    kindleFrame.style.flex='0 0 auto';
-    kindleFrame.style.margin='0';
-    return;
-  }
-
-  previewWrap.classList.remove('zoomed');
-  previewZoomBtn.textContent='拡大';
-  kindleFrame.style.flex='0 0 auto';
-
   const cs=getComputedStyle(previewWrap);
   const maxWidth=Math.max(
     1,
@@ -608,8 +765,11 @@ function scalePreviewCanvas(){
     1,
     previewWrap.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)
   );
+  const fitScale=Math.min(maxWidth/m.frameWidth,maxHeight/m.frameHeight,1);
 
-  const scale=Math.min(maxWidth/m.frameWidth,maxHeight/m.frameHeight,1);
+  kindleFrame.style.flex='0 0 auto';
+
+  const scale=fitScale;
   kindleFrame.style.transform=`scale(${scale})`;
   kindleFrame.style.transformOrigin='center center';
 
@@ -619,10 +779,18 @@ function scalePreviewCanvas(){
   kindleFrame.style.marginBottom=((m.frameHeight*scale-m.frameHeight)/2)+'px';
 }
 
+function saveSettingsOnly(){
+  localStorage.setItem('kindleBoardSettings',JSON.stringify({
+    font:fontSel.value,size:sizeSel.value,theme:themeSel.value,margin:marginSel.value,orientation:orientationSel.value,
+    imageMode:imageModeSel.value,invertImage:invertImageChk.checked,eink:einkSel.value,textColor:textColorSel.value,outline:outlineSel.value,textAlign:textAlignSel.value,
+    imageTransforms:imageTransforms
+  }));
+}
+
 function render(){
   applyOrientation();
 
-  preview.innerHTML='<div class="fit-content">'+((themeSel.value==='image' && !source.value.trim()) ? '' : parseMarkdown(source.value))+'</div>';
+  preview.innerHTML='<div class="fit-content">'+((backgroundImageData && !source.value.trim()) ? '' : parseMarkdown(source.value))+'</div>';
   preview.className='kindle-screen '+fontSel.value+(themeSel.value==='dark'?' dark':'');
   applyImageAppearance(preview);
   previewViewport.classList.toggle('dark', themeSel.value==='dark');
@@ -639,17 +807,7 @@ function render(){
 
   count.textContent=source.value.length+'文字';
   localStorage.setItem('kindleBoardDraft',source.value);
-  localStorage.setItem('kindleBoardSettings',JSON.stringify({
-    font:fontSel.value,
-    size:sizeSel.value,
-    theme:themeSel.value,
-    margin:marginSel.value,
-    orientation:orientationSel.value,
-    imageFit:imageFitSel.value,
-    textColor:textColorSel.value,
-    outline:outlineSel.value,
-    textAlign:textAlignSel.value
-  }));
+  saveSettingsOnly();
 
   requestAnimationFrame(()=>{
     const content=preview.querySelector('.fit-content');
@@ -677,7 +835,16 @@ function render(){
   });
 }
 
-[source,fontSel,sizeSel,themeSel,marginSel,orientationSel,imageFitSel,textColorSel,outlineSel,textAlignSel].forEach(el=>el.addEventListener('input',render));
+[source,fontSel,sizeSel,themeSel,marginSel,orientationSel,textColorSel,outlineSel,textAlignSel].forEach(el=>el.addEventListener('input',render));
+[imageModeSel,einkSel,invertImageChk].forEach(el=>el.addEventListener('input',rebuildProcessedImage));
+
+photoBtn.addEventListener('click',()=>{
+  photoToolsOpen=!photoToolsOpen;
+  render();
+  if(photoToolsOpen && !backgroundImageData){
+    requestAnimationFrame(()=>imageFile.click());
+  }
+});
 
 imageFile.addEventListener('change',async()=>{
   const file=imageFile.files && imageFile.files[0];
@@ -685,30 +852,70 @@ imageFile.addEventListener('change',async()=>{
   try{
     backgroundImageData=await processImageFile(file);
     backgroundImageFileName=file.name;
-    themeSel.value='image';
+    photoToolsOpen=true;
     await saveBackgroundImage();
-    render();
+    await rebuildProcessedImage();
   }catch(err){ alert(err.message||err); }
   finally{ imageFile.value=''; }
 });
 removeImageBtn.addEventListener('click',async()=>{
   await clearBackgroundImage();
-  themeSel.value='light';
+  processedImageData=null; sourceImageElement=null;
+  photoToolsOpen=true;
   render();
 });
 
-window.addEventListener('resize', scalePreviewCanvas);
-if('ResizeObserver' in window){
-  new ResizeObserver(scalePreviewCanvas).observe(previewWrap);
+
+resetImageBtn.addEventListener('click',resetCurrentTransform);
+preview.addEventListener('pointerdown',e=>{
+  if(!backgroundImageData) return;
+  preview.setPointerCapture(e.pointerId);
+  const t=currentTransform();
+  if(!gestureState) gestureState={pointers:new Map(),startX:t.x,startY:t.y,startScale:t.scale};
+  gestureState.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(gestureState.pointers.size===1){gestureState.origin={x:e.clientX,y:e.clientY};gestureState.startX=t.x;gestureState.startY=t.y;}
+  if(gestureState.pointers.size===2){
+    const pts=[...gestureState.pointers.values()];
+    gestureState.startDistance=Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y);
+    gestureState.startScale=t.scale;
+  }
+  e.preventDefault();
+});
+preview.addEventListener('pointermove',e=>{
+  if(!gestureState || !gestureState.pointers.has(e.pointerId)) return;
+  gestureState.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  const t=currentTransform();
+  if(gestureState.pointers.size===1){
+    const p=[...gestureState.pointers.values()][0];
+    const rect=preview.getBoundingClientRect();
+    const logicalPerCss=getCanvasSize().width/Math.max(1,rect.width);
+    t.x=gestureState.startX+(p.x-gestureState.origin.x)*logicalPerCss;
+    t.y=gestureState.startY+(p.y-gestureState.origin.y)*logicalPerCss;
+  }else if(gestureState.pointers.size>=2){
+    const pts=[...gestureState.pointers.values()].slice(0,2);
+    const d=Math.hypot(pts[1].x-pts[0].x,pts[1].y-pts[0].y);
+    t.scale=Math.min(5,Math.max(1,d/Math.max(1,gestureState.startDistance)*gestureState.startScale));
+  }
+  backgroundSizing(preview);
+  e.preventDefault();
+});
+function endPointer(e){
+  if(!gestureState) return;
+  gestureState.pointers.delete(e.pointerId);
+  if(!gestureState.pointers.size){gestureState=null;saveSettingsOnly();}
+  else if(gestureState.pointers.size===1){const p=[...gestureState.pointers.values()][0];const t=currentTransform();gestureState.origin={x:p.x,y:p.y};gestureState.startX=t.x;gestureState.startY=t.y;}
 }
-previewZoomBtn.addEventListener('click',()=>{
-  previewZoomed=!previewZoomed;
-  scalePreviewCanvas();
+preview.addEventListener('pointerup',endPointer);
+preview.addEventListener('pointercancel',endPointer);
+preview.addEventListener('dblclick',e=>{
+  if(backgroundImageData){
+    e.preventDefault();
+    e.stopPropagation();
+    resetCurrentTransform();
+  }
 });
-previewWrap.addEventListener('dblclick',()=>{
-  previewZoomed=!previewZoomed;
-  scalePreviewCanvas();
-});
+
+window.addEventListener('resize',()=>requestAnimationFrame(scalePreviewCanvas));
 
 document.getElementById('sampleBtn').onclick=()=>{
   if(source.value.trim() && source.value!==sample &&
@@ -776,7 +983,7 @@ async function makeCoverPng(){
 
   const content = document.createElement('div');
   content.className='fit-content';
-  content.innerHTML = (themeSel.value==='image' && !source.value.trim()) ? '' : parseMarkdown(source.value);
+  content.innerHTML = (backgroundImageData && !source.value.trim()) ? '' : parseMarkdown(source.value);
   sheet.appendChild(content);
 
   stage.appendChild(sheet);
@@ -962,13 +1169,9 @@ async function shareOrDownloadEpub(blob,title){
 
 document.getElementById('sendBtn').onclick=async()=>{
   const btn = document.getElementById('sendBtn');
-  if(!source.value.trim() && !(themeSel.value==='image' && backgroundImageData)){
-    alert(themeSel.value==='image' ? '背景画像を選択するか、掲示内容を入力してください。' : '掲示内容を入力してください。');
+  if(!source.value.trim() && !backgroundImageData){
+    alert('掲示内容を入力するか、写真を選択してください。');
     source.focus();
-    return;
-  }
-  if(themeSel.value==='image' && !backgroundImageData){
-    alert('背景に使用する画像を選択してください。');
     return;
   }
 
@@ -1017,17 +1220,20 @@ try{
   source.value=draft!==null?draft:starter;
   if(settings.font)fontSel.value=settings.font;
   if(settings.size)sizeSel.value=settings.size;
-  if(settings.theme)themeSel.value=settings.theme;
+  if(settings.theme)themeSel.value=settings.theme==='dark'?'dark':'light';
   if(settings.margin)marginSel.value=settings.margin;
   if(settings.orientation)orientationSel.value=settings.orientation;
-  if(settings.imageFit)imageFitSel.value=settings.imageFit;
+  if(settings.imageMode)imageModeSel.value=settings.imageMode;
+  invertImageChk.checked=!!settings.invertImage;
+  if(settings.eink)einkSel.value=settings.eink;
+  if(settings.imageTransforms){Object.assign(imageTransforms.portrait,settings.imageTransforms.portrait||{});Object.assign(imageTransforms.landscape,settings.imageTransforms.landscape||{});}
   if(settings.textColor) textColorSel.value=settings.textColor;
   else if(settings.outline==='black') textColorSel.value='black';
   if(settings.outline==='off' || settings.outline==='none') outlineSel.value='off';
   else outlineSel.value='on';
   if(settings.textAlign) textAlignSel.value=settings.textAlign;
 }catch(e){ source.value=starter; }
-(async()=>{ await loadBackgroundImage(); render(); })();
+(async()=>{ await loadBackgroundImage(); if(backgroundImageData) await processImageWithGLSL().catch(()=>processedImageData=backgroundImageData); render(); })();
 </script>
 
 <script>

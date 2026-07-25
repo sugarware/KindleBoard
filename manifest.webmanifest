@@ -1,7 +1,7 @@
 {
-  "name": "Kindle掲示板",
-  "short_name": "Kindle掲示板",
-  "description": "掲示内容を作成し、Kindleの電源OFF画面へ表示するためのアプリ v0.5b",
+  "name": "SleepingKindle",
+  "short_name": "SleepingKindle",
+  "description": "SleepingKindle v0.7g — Kindleのスリープ画面を文字や写真で作成",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",
