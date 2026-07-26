@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sleeping-kindle-v0.7i-pwa-1';
+const CACHE_NAME = 'sleeping-kindle-v0.8c-pwa-1';
 
 const LOCAL_ASSETS = [
   './',

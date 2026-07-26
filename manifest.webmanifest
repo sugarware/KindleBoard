@@ -1,7 +1,7 @@
 {
   "name": "SleepingKindle",
   "short_name": "SleepingKindle",
-  "description": "SleepingKindle v0.7i — Kindleのスリープ画面を文字や写真で作成",
+  "description": "SleepingKindle v0.8c — Kindleのスリープ画面を文字や写真で作成",
   "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",
