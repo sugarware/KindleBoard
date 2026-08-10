@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>SleepingKindle v0.8</title>
+<title>SleepingKindle v0.8b</title>
 <meta name="theme-color" content="#263b36">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="SleepingKindle">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
+<link rel="manifest" href="manifest-v0.8b.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-v0.8b.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32-v0.8b.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16-v0.8b.png">
 
 <style>
 :root{
@@ -135,10 +135,7 @@ textarea{
 .kindle-screen h1{font-size:2em;line-height:1.25;margin:.1em 0 .7em;border-bottom:3px solid currentColor;padding-bottom:.18em}
 .kindle-screen h2{font-size:1.45em;margin:1em 0 .5em}
 .kindle-screen p{margin:.55em 0;line-height:1.55}
-.kindle-screen ul,.kindle-screen ol{padding-left:1.5em;line-height:1.55}
-.kindle-screen .checklist{list-style:none;padding-left:.15em}
-.kindle-screen .checklist li{display:flex;gap:.45em;align-items:flex-start}
-.kindle-screen .checkmark{flex:0 0 auto;font-family:sans-serif}
+.kindle-screen ul{padding-left:1.5em;line-height:1.55}
 .kindle-screen hr{border:0;border-top:2px solid currentColor;margin:1em 0}
 .kindle-screen table{border-collapse:collapse;width:100%;margin:.8em 0;font-size:.92em}
 .kindle-screen th,.kindle-screen td{border:1.5px solid currentColor;padding:.42em .55em;vertical-align:top}
@@ -164,46 +161,45 @@ button:disabled{cursor:not-allowed;opacity:.58}
   .panel{min-height:420px}
 }
 
-.template-dialog{border:0;border-radius:14px;padding:0;width:min(620px,calc(100vw - 20px));max-height:calc(100dvh - 20px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
-.template-dialog::backdrop{background:rgba(0,0,0,.45)}
-.template-box{display:grid;grid-template-rows:auto 1fr auto;max-height:calc(100dvh - 20px);background:#fff}
-.template-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
-.template-head h2{font-size:17px;margin:0}.template-head .spacer{flex:1}
-.template-close{border:1px solid #aeb5bb;border-radius:7px;background:#fff;padding:5px 9px}
-.template-body{overflow:auto;padding:10px 12px}.template-section-title{font-size:12px;font-weight:700;color:#596068;margin:0 0 6px}
-.builtin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:11px}
-.builtin-card{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:9px 10px;background:#fafbfb;min-width:0;text-align:left;cursor:pointer}
-.builtin-card:active{transform:translateY(1px)}
-.builtin-icon{font-size:20px;line-height:1;flex:none}.builtin-text{min-width:0}.builtin-card strong{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.builtin-card small{display:block;font-size:11px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.user-list{display:grid;gap:6px}.user-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px;border:1px solid var(--line);border-radius:9px;padding:6px;background:#fafbfb}
-.user-name{min-width:0;border:0;background:transparent;text-align:left;padding:5px 6px;border-radius:6px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.user-name[disabled]{color:#6a7075;font-weight:400}.user-name:not([disabled]):active{background:#e8eeec}
-.user-row button:not(.user-name){border:1px solid #aeb5bb;border-radius:7px;background:#fff;padding:6px 8px;white-space:nowrap}.user-row button.load-template{background:var(--accent);color:#fff;border-color:var(--accent)}
-.template-foot{padding:7px 12px;border-top:1px solid var(--line);font-size:11px;line-height:1.35;color:#666;background:#fafafa}
-@media(max-width:420px){
- .template-dialog{width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}
- .template-box{max-height:calc(100dvh - 12px)}
- .template-head{padding:8px 9px}.template-head h2{font-size:15px}
- .template-body{padding:8px 9px}.builtin-grid{gap:5px;margin-bottom:8px}.builtin-card{padding:7px 8px;gap:6px}.builtin-icon{font-size:18px}.builtin-card strong{font-size:13px}.builtin-card small{font-size:10px}
- .user-list{gap:5px}.user-row{gap:4px;padding:4px}.user-row button:not(.user-name){padding:5px 6px;font-size:12px}.user-name{padding:5px 4px;font-size:12px}
- .template-foot{padding:6px 9px;font-size:10px}
-}
+
+/* SugarPad v1.0 */
+.sugarpad{position:fixed;left:18px;top:120px;z-index:5000;background:rgba(248,249,250,.97);border:1px solid #9ea6ad;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.22);padding:6px;user-select:none;-webkit-user-select:none;touch-action:none;max-width:calc(100vw - 12px)}
+.sugarpad.hidden{display:none}
+.sugarpad-row{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.sugarpad-row + .sugarpad-row{margin-top:4px}
+.sugarpad button{border:1px solid #aeb5bb;background:#fff;color:#1b1d1f;border-radius:7px;font-weight:650;line-height:1;min-width:34px;height:32px;padding:0 7px;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.sugarpad button:active{background:#e4e8eb}
+.sugarpad .sp-drag{cursor:grab;background:#e7ecea;color:#314843;touch-action:none}
+.sugarpad .sp-drag:active{cursor:grabbing}
+.sugarpad .sp-skb.off{background:#5a6268;color:#fff;border-color:#5a6268}
+.sugarpad .sp-skb.on{background:#2f5d50;color:#fff;border-color:#2f5d50}
+.sugarpad .sp-mode{background:#e7f0ed;border-color:#9db8af;color:#234b40}
+.sugarpad .sp-pagebar{display:flex;align-items:center;gap:4px;border-top:1px solid #c9ced2;margin-top:6px;padding-top:6px}
+.sugarpad .sp-page-name{flex:1;text-align:center;font-size:12px;font-weight:700;min-width:80px;color:#41474c}
+.sugarpad .sp-ext{margin-top:4px}
+.sugarpad .sp-ext .sugarpad-row{flex-wrap:wrap;white-space:normal;max-width:330px}
+.sugarpad.mini .sp-pagebar,.sugarpad.mini .sp-ext{display:none}
+.sugarpad.size-small button{height:28px;min-width:29px;padding:0 5px;font-size:12px}.sugarpad.size-small{padding:5px}.sugarpad.size-small .sugarpad-row{gap:3px}.sugarpad.size-small .sp-page-name{font-size:11px}
+.sugarpad.size-large button{height:40px;min-width:42px;padding:0 9px;font-size:16px}.sugarpad.size-large{padding:8px}.sugarpad.size-large .sugarpad-row{gap:6px}.sugarpad.size-large .sp-page-name{font-size:14px}
+.sugarpad .sp-user-grid{display:grid;grid-template-columns:repeat(3,minmax(72px,1fr));gap:5px;max-width:330px;white-space:normal}
+.sugarpad .sp-user-grid button{height:auto;min-height:34px;line-height:1.2;white-space:normal;padding:6px}
+.sugarpad .sp-user-head{display:flex;align-items:center;gap:4px;margin-bottom:5px}
+.sugarpad .sp-user-title{flex:1;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugarpad .sp-user-tools{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.sugarpad .sp-user-tools button{font-size:11px;min-width:0}
+#sugarPadToggle{border:1px solid #aeb5bb;border-radius:7px;padding:6px 9px;background:#fff}
+.sp-toast{position:fixed;z-index:6000;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(20,23,25,.92);color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .18s}.sp-toast.show{opacity:1}
+@media(max-width:560px){.sugarpad{left:8px;top:96px}.sugarpad .sp-user-grid{grid-template-columns:repeat(2,minmax(76px,1fr));max-width:240px}}
+
 </style>
 </head>
 <body>
 <header>
-  <h1>SleepingKindle</h1><span class="ver">v0.8c</span>
+  <h1>SleepingKindle</h1><span class="ver">v0.8b</span>
   <div class="spacer"></div>
   <button id="sampleBtn">例文</button>
   <button id="newBtn">新規</button>
 </header>
-
-<dialog id="templateDialog" class="template-dialog">
-  <div class="template-box">
-    <div class="template-head"><h2>例文・テンプレート</h2><div class="spacer"></div><button id="templateCloseBtn" class="template-close" type="button">閉じる</button></div>
-    <div id="templateBody" class="template-body"></div>
-    <div class="template-foot">ユーザー例文には本文と表示設定を保存します（写真は対象外）。登録名の長押しで削除できます。</div>
-  </div>
-</dialog>
 
 <main>
 <section class="panel editor-panel">
@@ -230,6 +226,7 @@ button:disabled{cursor:not-allowed;opacity:.58}
       </select>
     </label>
     <button id="photoBtn" class="small-btn" type="button" aria-expanded="false">写真</button>
+    <button id="sugarPadToggle" type="button" aria-pressed="true">SugarPad</button>
     <label class="field">余白
       <select id="marginSel">
         <option value="4">狭い</option>
@@ -298,6 +295,37 @@ button:disabled{cursor:not-allowed;opacity:.58}
   </div>
 </section>
 
+
+<div id="sugarPad" class="sugarpad size-normal" aria-label="SugarPad">
+  <div class="sugarpad-row">
+    <button type="button" class="sp-drag" id="spDrag" title="ドラッグして移動">⠿</button>
+    <button type="button" class="sp-mode" id="spMode" title="mini/標準切替">mini</button>
+    <button type="button" class="sp-skb off" id="spSKB" title="ソフトキーボード許可">SKB</button>
+    <button type="button" data-spcmd="ret" title="改行">RET</button>
+    <button type="button" data-spcmd="left" title="1文字左">←</button>
+    <button type="button" data-spcmd="right" title="1文字右">→</button>
+    <button type="button" data-spcmd="bs">BS</button>
+    <button type="button" data-spcmd="del">DEL</button>
+  </div>
+  <div class="sugarpad-row">
+    <button type="button" data-spcmd="undo">Undo</button>
+    <button type="button" data-spcmd="redo">Redo</button>
+    <button type="button" data-spcmd="cut">Cut</button>
+    <button type="button" data-spcmd="copy">Copy</button>
+    <button type="button" data-spcmd="paste">Paste</button>
+    <button type="button" id="spSize" title="サイズ切替">標準</button>
+    <button type="button" id="spClose" title="SugarPadを閉じる">×</button>
+  </div>
+  <div class="sp-pagebar">
+    <button type="button" id="spPrevPage">◀</button>
+    <span class="sp-page-name" id="spPageName">Markdown</span>
+    <button type="button" id="spNextPage">▶</button>
+  </div>
+  <div class="sp-ext" id="spExt"></div>
+</div>
+<div id="spToast" class="sp-toast" role="status"></div>
+<input id="spImportFile" type="file" accept="application/json,.json" hidden>
+
 <section class="panel preview-panel">
   <div class="preview-head">
     <strong>Kindle画面プレビュー</strong>
@@ -323,66 +351,22 @@ const starter = `# タイトル
 
 ここへ入力してください。`;
 
-const builtInTemplates = [
-  {name:'本日の予定', icon:'📅', description:'予定表・太字', text:`# 本日の予定
+const sample = `# 本日の予定
 
-**7月26日（日）**
-
-| 時刻 | 予定 |
-|---|---|
-| 10:00 | 買い物 |
-| 13:00 | 来客 |
-| 18:00 | 夕食 |
-
-## 連絡
-
-帰宅は **17時ごろ** です。`},
-  {name:'買い物・持ち物', icon:'☑', description:'チェックリスト', text:`# 買い物リスト
-
-## 食品
-
-- [ ] 牛乳
-- [ ] 卵
-- [x] パン
-
-## 日用品
-
-- [ ] ティッシュ
-- [ ] 電池
-
-**冷蔵品は最後に購入**`},
-  {name:'家族への伝言', icon:'📢', description:'見出し・箇条書き', text:`# 伝言
-
-**先に出かけています。**
-
-- 昼食は冷蔵庫にあります
-- 荷物が届いたら受け取ってください
-- 戸締まりをお願いします
-
-## 帰宅予定
-
-18時ごろ`},
-  {name:'Markdownの書き方', icon:'📝', description:'対応記法の見本', text:`# 書き方の例
-## 各種リスト
-- 単純リスト　項目A
-- 単純リスト　項目B
-1. 番号付きリスト　最初の手順
-1. 番号付きリスト　次の手順
-- [ ] チェックリスト　未完了
-- [x] チェックリスト　完了
----
-## 作表
-| 項目 | 内容 | 時刻 |
+| 時刻 | 内容 | 備考 |
 |:---:|:---|---:|
-| 斜体 | *ピサの斜塔* | 10:00 |
-| 強調 | **ゴシック建築** |  9:00 |
+| 10:00 | 外出 | 30分 |
+| 13:30 | ゴルフ | 4時間 |
+| 17:00 | 帰宅予定<br>荷物確認 | |
 
-縦線 | で列を区切り、2行目に --- を書きます。
-コロン : で文字揃え(左、中央、右)を指定できます。`}
-];
+## 連絡事項
 
-const USER_TEMPLATE_KEY='kindleBoardUserTemplatesV08';
-const USER_TEMPLATE_SLOTS=4;
+- 荷物は玄関横へお願いします
+- 緊急時は携帯電話へ連絡してください
+
+---
+
+本日もよろしくお願いします。`;
 
 const source = document.getElementById('source');
 const preview = document.getElementById('preview');
@@ -405,6 +389,20 @@ const textColorSel = document.getElementById('textColorSel');
 const outlineSel = document.getElementById('outlineSel');
 const textAlignSel = document.getElementById('textAlignSel');
 const removeImageBtn = document.getElementById('removeImageBtn');
+const sugarPad=document.getElementById('sugarPad');
+const sugarPadToggle=document.getElementById('sugarPadToggle');
+const spDrag=document.getElementById('spDrag');
+const spMode=document.getElementById('spMode');
+const spSKB=document.getElementById('spSKB');
+const spSize=document.getElementById('spSize');
+const spClose=document.getElementById('spClose');
+const spPrevPage=document.getElementById('spPrevPage');
+const spNextPage=document.getElementById('spNextPage');
+const spPageName=document.getElementById('spPageName');
+const spExt=document.getElementById('spExt');
+const spToast=document.getElementById('spToast');
+const spImportFile=document.getElementById('spImportFile');
+
 let backgroundImageData = null;
 let backgroundImageFileName = '';
 let processedImageData = null;
@@ -416,9 +414,6 @@ let photoToolsOpen=false;
 const kindleFrame = document.querySelector('.kindle-frame');
 const count = document.getElementById('count');
 const previewNotice = document.getElementById('previewNotice');
-const templateDialog = document.getElementById('templateDialog');
-const templateBody = document.getElementById('templateBody');
-const templateCloseBtn = document.getElementById('templateCloseBtn');
 const FIT_SAFETY = 0.94;
 
 
@@ -662,19 +657,9 @@ function inline(s){
 
 function parseMarkdown(text){
   const lines = text.replace(/\r/g,'').split('\n');
-  let html='', i=0, listType='';
+  let html='', i=0, inList=false;
 
-  const closeList=()=>{
-    if(!listType) return;
-    html+=listType==='ol'?'</ol>':'</ul>';
-    listType='';
-  };
-  const openList=type=>{
-    if(listType===type) return;
-    closeList();
-    html+=type==='ol'?'<ol>':type==='check'?'<ul class="checklist">':'<ul>';
-    listType=type;
-  };
+  const closeList=()=>{ if(inList){ html+='</ul>'; inList=false; } };
 
   while(i<lines.length){
     const line=lines[i];
@@ -683,23 +668,8 @@ function parseMarkdown(text){
     if(/^##\s+/.test(line)){ closeList(); html+=`<h2>${inline(line.replace(/^##\s+/,''))}</h2>`; i++; continue; }
     if(/^---+$/.test(line.trim())){ closeList(); html+='<hr>'; i++; continue; }
 
-    const checkMatch=line.match(/^\s*[-*]\s+\[([ xX])\]\s+(.*)$/);
-    if(checkMatch){
-      openList('check');
-      const mark=checkMatch[1].toLowerCase()==='x'?'☑':'☐';
-      html+=`<li><span class="checkmark">${mark}</span><span>${inline(checkMatch[2])}</span></li>`;
-      i++; continue;
-    }
-
-    const orderedMatch=line.match(/^\s*\d+\.\s+(.*)$/);
-    if(orderedMatch){
-      openList('ol');
-      html+=`<li>${inline(orderedMatch[1])}</li>`;
-      i++; continue;
-    }
-
     if(/^\s*[-*]\s+/.test(line)){
-      openList('ul');
+      if(!inList){ html+='<ul>'; inList=true; }
       html+=`<li>${inline(line.replace(/^\s*[-*]\s+/,''))}</li>`;
       i++; continue;
     }
@@ -886,6 +856,235 @@ function scalePreviewCanvas(){
   kindleFrame.style.marginBottom=((m.frameHeight*scale-m.frameHeight)/2)+'px';
 }
 
+
+/* ===== SugarPad common component v1.0 ===== */
+const SP_STORAGE='sugarPadSettings_v1';
+const SP_LIBRARY='sugarPadUserLibrary_v1';
+const SP_PAGES=['Markdown','Symbol','User'];
+const SP_SIZES=['small','normal','large'];
+let spState={visible:true,mode:'mini',size:'normal',page:0,skb:false,posPortrait:null,posLandscape:null,userCategory:'favorites'};
+let spSavedSelection={start:0,end:0};
+let spDragState=null;
+let spToastTimer=null;
+let spHistory=[];
+let spHistoryIndex=-1;
+let spHistoryLock=false;
+let spLastValue='';
+let spLastInputAt=0;
+
+const SP_DEFAULT_LIBRARY={
+  format:'SugarPadUserLibrary',version:1,
+  categories:[
+    {id:'common',name:'よく使う候補',order:1,items:[
+      {id:'sample-thanks',label:'よろしく',text:'よろしくお願いします。',favorite:false,order:1},
+      {id:'sample-table',label:'表2列',text:'|項目|内容|\\n|---|---|\\n| | |',favorite:false,order:2}
+    ]}
+  ]
+};
+let spLibrary=loadSpLibrary();
+
+function loadSpLibrary(){
+  try{
+    const v=JSON.parse(localStorage.getItem(SP_LIBRARY)||'null');
+    if(v&&v.format==='SugarPadUserLibrary'&&Array.isArray(v.categories)) return v;
+  }catch(e){}
+  return JSON.parse(JSON.stringify(SP_DEFAULT_LIBRARY));
+}
+function saveSpLibrary(){localStorage.setItem(SP_LIBRARY,JSON.stringify(spLibrary));}
+function loadSpState(){
+  try{const v=JSON.parse(localStorage.getItem(SP_STORAGE)||'{}');Object.assign(spState,v||{});}catch(e){}
+  if(!SP_SIZES.includes(spState.size))spState.size='normal';
+  if(!['mini','standard'].includes(spState.mode))spState.mode='mini';
+  spState.page=Math.max(0,Math.min(SP_PAGES.length-1,Number(spState.page)||0));
+}
+function saveSpState(){localStorage.setItem(SP_STORAGE,JSON.stringify(spState));}
+function spOrientationKey(){return innerWidth>innerHeight?'posLandscape':'posPortrait';}
+function clampSpPosition(x,y){
+  const r=sugarPad.getBoundingClientRect();
+  const maxX=Math.max(4,innerWidth-r.width-4),maxY=Math.max(4,innerHeight-r.height-4);
+  return {x:Math.min(maxX,Math.max(4,x)),y:Math.min(maxY,Math.max(4,y))};
+}
+function applySpPosition(){
+  const pos=spState[spOrientationKey()]||{x:Math.max(8,innerWidth-sugarPad.offsetWidth-18),y:Math.max(82,innerHeight-sugarPad.offsetHeight-24)};
+  requestAnimationFrame(()=>{const q=clampSpPosition(pos.x,pos.y);sugarPad.style.left=q.x+'px';sugarPad.style.top=q.y+'px';});
+}
+function applySpState(){
+  sugarPad.classList.toggle('hidden',!spState.visible);
+  sugarPad.classList.toggle('mini',spState.mode==='mini');
+  sugarPad.classList.remove('size-small','size-normal','size-large');
+  sugarPad.classList.add('size-'+spState.size);
+  spMode.textContent=spState.mode==='mini'?'標準':'mini';
+  spSize.textContent=spState.size==='small'?'小':spState.size==='large'?'大':'標準';
+  spSKB.classList.toggle('on',spState.skb);spSKB.classList.toggle('off',!spState.skb);
+  spSKB.setAttribute('aria-pressed',String(spState.skb));
+  sugarPadToggle.setAttribute('aria-pressed',String(spState.visible));
+  // SKB OFFでもキャレットと選択を維持するためreadOnlyにはしない。
+  // iOSではinputmode=noneでソフトウェアキーボードだけを抑止する。
+  source.readOnly=false;
+  source.setAttribute('inputmode',spState.skb?'text':'none');
+  source.setAttribute('enterkeyhint','enter');
+  renderSpPage();
+  applySpPosition();
+  saveSpState();
+}
+function spToastMsg(msg){clearTimeout(spToastTimer);spToast.textContent=msg;spToast.classList.add('show');spToastTimer=setTimeout(()=>spToast.classList.remove('show'),1200);}
+function rememberSpSelection(){
+  if(document.activeElement===source || (Number.isInteger(source.selectionStart)&&Number.isInteger(source.selectionEnd))){spSavedSelection={start:source.selectionStart||0,end:source.selectionEnd||0};}
+}
+function focusSpSource(start=spSavedSelection.start,end=spSavedSelection.end){
+  start=Math.max(0,Math.min(source.value.length,start));end=Math.max(start,Math.min(source.value.length,end));
+  try{source.focus({preventScroll:true});}catch(e){source.focus();}
+  try{source.setSelectionRange(start,end);}catch(e){}
+  spSavedSelection={start,end};
+}
+function spPushHistory(force=false){
+  if(spHistoryLock)return;
+  const now=Date.now(),snap={value:source.value,start:source.selectionStart||0,end:source.selectionEnd||0};
+  const cur=spHistory[spHistoryIndex];
+  if(cur&&cur.value===snap.value){cur.start=snap.start;cur.end=snap.end;return;}
+  if(!force && now-spLastInputAt<500 && spHistoryIndex>=0){spHistory[spHistoryIndex]=snap;}
+  else{spHistory=spHistory.slice(0,spHistoryIndex+1);spHistory.push(snap);if(spHistory.length>120)spHistory.shift();else spHistoryIndex++;}
+  spLastInputAt=now;spLastValue=snap.value;
+}
+function spInitHistory(){spHistory=[{value:source.value,start:source.selectionStart||0,end:source.selectionEnd||0}];spHistoryIndex=0;spLastValue=source.value;}
+function spRestoreHistory(idx){
+  if(idx<0||idx>=spHistory.length)return;
+  spHistoryLock=true;spHistoryIndex=idx;const h=spHistory[idx];source.value=h.value;render();focusSpSource(h.start,h.end);spHistoryLock=false;
+}
+function spReplaceRange(text,newCaretOffset=null){
+  const a=spSavedSelection.start,b=spSavedSelection.end;
+  const before=source.value.slice(0,a),after=source.value.slice(b);
+  source.value=before+text+after;
+  const caret=a+(newCaretOffset===null?text.length:newCaretOffset);
+  focusSpSource(caret,caret);render();spPushHistory(true);
+}
+function spMove(delta){
+  let a=spSavedSelection.start,b=spSavedSelection.end,pos;
+  if(a!==b)pos=delta<0?a:b;else pos=a+delta;
+  pos=Math.max(0,Math.min(source.value.length,pos));focusSpSource(pos,pos);
+}
+function spDelete(backward){
+  let a=spSavedSelection.start,b=spSavedSelection.end;
+  if(a===b){if(backward&&a>0)a--;else if(!backward&&b<source.value.length)b++;else return;}
+  spSavedSelection={start:a,end:b};spReplaceRange('');
+}
+async function spCopy(cut=false){
+  const a=spSavedSelection.start,b=spSavedSelection.end;if(a===b){spToastMsg('選択範囲がありません');return;}
+  const text=source.value.slice(a,b);
+  try{await navigator.clipboard.writeText(text);spToastMsg(cut?'切り取りました':'コピーしました');if(cut)spReplaceRange('');}
+  catch(e){spToastMsg('クリップボードへ書き込めません');}
+}
+async function spPaste(){
+  try{const text=await navigator.clipboard.readText();if(text===''){spToastMsg('クリップボードは空です');return;}spReplaceRange(text);spToastMsg('貼り付けました');}
+  catch(e){spToastMsg('Pasteを許可できませんでした');}
+}
+function spInsertText(text){spReplaceRange(text);}
+function spWrap(open,close=open){
+  const a=spSavedSelection.start,b=spSavedSelection.end,sel=source.value.slice(a,b);
+  if(sel){spReplaceRange(open+sel+close);focusSpSource(a+open.length,b+open.length);}
+  else{spReplaceRange(open+close,open.length);}
+}
+function spLinePrefix(prefix){
+  const pos=spSavedSelection.start;const start=source.value.lastIndexOf('\n',Math.max(0,pos-1))+1;
+  spSavedSelection={start,end:start};spReplaceRange(prefix);focusSpSource(pos+prefix.length,pos+prefix.length);
+}
+function executeSpCommand(cmd){
+  rememberSpSelection();
+  if(cmd==='ret')spInsertText('\n');else if(cmd==='left')spMove(-1);else if(cmd==='right')spMove(1);else if(cmd==='bs')spDelete(true);else if(cmd==='del')spDelete(false);
+  else if(cmd==='undo'){if(spHistoryIndex>0)spRestoreHistory(spHistoryIndex-1);else spToastMsg('これ以上戻せません');}
+  else if(cmd==='redo'){if(spHistoryIndex<spHistory.length-1)spRestoreHistory(spHistoryIndex+1);else spToastMsg('Redoはありません');}
+  else if(cmd==='copy')spCopy(false);else if(cmd==='cut')spCopy(true);else if(cmd==='paste')spPaste();
+}
+function renderSpPage(){
+  if(!spExt)return;const page=SP_PAGES[spState.page];spPageName.textContent=page;spExt.innerHTML='';
+  if(page==='Markdown'){
+    const row=document.createElement('div');row.className='sugarpad-row';
+    ['#','*','|','-',':','>','`'].forEach(ch=>{const b=document.createElement('button');b.type='button';b.textContent=ch;b.onclick=()=>spInsertText(ch);row.appendChild(b);});
+    const row2=document.createElement('div');row2.className='sugarpad-row';
+    [['H1',()=>spLinePrefix('# ')],['H2',()=>spLinePrefix('## ')],['B',()=>spWrap('**')],['List',()=>spLinePrefix('- ')],['表',()=>spInsertText('|項目|内容|\n|---|---|\n| | |')]].forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;row2.appendChild(b);});
+    spExt.append(row,row2);
+  }else if(page==='Symbol'){
+    const row=document.createElement('div');row.className='sugarpad-row';['℃','○','●','□','■','→','←','↑','↓','※','〒'].forEach(ch=>{const b=document.createElement('button');b.type='button';b.textContent=ch;b.onclick=()=>spInsertText(ch);row.appendChild(b);});spExt.appendChild(row);
+  }else renderSpUserPage();
+}
+function spFavorites(){const out=[];for(const c of spLibrary.categories||[])for(const i of c.items||[])if(i.favorite)out.push({...i,_category:c});return out;}
+function spCategoryById(id){return (spLibrary.categories||[]).find(c=>c.id===id);}
+function renderSpUserPage(){
+  const head=document.createElement('div');head.className='sp-user-head';
+  const back=document.createElement('button');back.type='button';back.textContent='←';back.disabled=spState.userCategory==='root';back.onclick=()=>{spState.userCategory='root';saveSpState();renderSpPage();};
+  const title=document.createElement('span');title.className='sp-user-title';
+  title.textContent=spState.userCategory==='root'?'User':spState.userCategory==='favorites'?'★ よく使う':(spCategoryById(spState.userCategory)?.name||'User');
+  const edit=document.createElement('button');edit.type='button';edit.textContent='＋';edit.title='カテゴリ/項目を追加';edit.onclick=spUserAdd;
+  head.append(back,title,edit);spExt.appendChild(head);
+  const grid=document.createElement('div');grid.className='sp-user-grid';
+  if(spState.userCategory==='root'){
+    const fav=document.createElement('button');fav.type='button';fav.textContent='★ よく使う';fav.onclick=()=>{spState.userCategory='favorites';saveSpState();renderSpPage();};grid.appendChild(fav);
+    [...(spLibrary.categories||[])].sort((a,b)=>(a.order||0)-(b.order||0)).forEach(c=>{const b=document.createElement('button');b.type='button';b.textContent=c.name;let longPressed=false,timer=null;b.onclick=()=>{if(longPressed){longPressed=false;return;}spState.userCategory=c.id;saveSpState();renderSpPage();};b.addEventListener('pointerdown',()=>{longPressed=false;timer=setTimeout(()=>{longPressed=true;spEditCategory(c);},650)});['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,()=>clearTimeout(timer)));b.oncontextmenu=e=>{e.preventDefault();longPressed=true;spEditCategory(c);};grid.appendChild(b);});
+  }else{
+    const items=spState.userCategory==='favorites'?spFavorites():((spCategoryById(spState.userCategory)?.items)||[]).map(i=>({...i,_category:spCategoryById(spState.userCategory)}));
+    [...items].sort((a,b)=>(a.order||0)-(b.order||0)).forEach(i=>{const b=document.createElement('button');b.type='button';b.textContent=(i.favorite?'★ ':'')+i.label;let longPressed=false,timer=null;b.onclick=()=>{if(longPressed){longPressed=false;return;}spInsertText(i.text||'');};b.addEventListener('pointerdown',()=>{longPressed=false;timer=setTimeout(()=>{longPressed=true;spEditUserItem(i._category,i);},650)});['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,()=>clearTimeout(timer)));grid.appendChild(b);});
+    if(!items.length){const e=document.createElement('span');e.textContent='項目なし';e.style.fontSize='12px';grid.appendChild(e);}
+  }
+  spExt.appendChild(grid);
+  const tools=document.createElement('div');tools.className='sp-user-tools';
+  [['Export',spExportLibrary],['Import',()=>spImportFile.click()],['JSON Copy',spCopyLibraryJson]].forEach(([label,fn])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=fn;tools.appendChild(b);});
+  spExt.appendChild(tools);
+}
+function spId(prefix='id'){return prefix+'-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,6);}
+function spUserAdd(){
+  if(spState.userCategory==='root'){
+    const name=prompt('新しいカテゴリ名');if(!name)return;spLibrary.categories.push({id:spId('cat'),name:name.trim(),order:spLibrary.categories.length+1,items:[]});saveSpLibrary();renderSpPage();return;
+  }
+  if(spState.userCategory==='favorites'){spToastMsg('カテゴリを開いて追加してください');return;}
+  const c=spCategoryById(spState.userCategory);if(!c)return;const label=prompt('ボタン名');if(!label)return;const text=prompt('挿入する文字列');if(text===null)return;c.items=c.items||[];c.items.push({id:spId('item'),label:label.trim(),text,favorite:false,order:c.items.length+1,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});saveSpLibrary();renderSpPage();
+}
+function spEditUserItem(c,item){
+  if(!c||!item)return;const action=prompt('操作を入力: edit / favorite / delete','edit');if(!action)return;
+  if(action.toLowerCase()==='delete'){if(confirm('「'+item.label+'」を削除しますか？')){c.items=c.items.filter(x=>x.id!==item.id);saveSpLibrary();renderSpPage();}}
+  else if(action.toLowerCase()==='favorite'){item.favorite=!item.favorite;item.updatedAt=new Date().toISOString();saveSpLibrary();renderSpPage();}
+  else {const label=prompt('ボタン名',item.label);if(label===null)return;const text=prompt('挿入文字列',item.text||'');if(text===null)return;item.label=label.trim()||item.label;item.text=text;item.updatedAt=new Date().toISOString();saveSpLibrary();renderSpPage();}
+}
+function spEditCategory(c){const name=prompt('カテゴリ名',c.name);if(name===null)return;if(name.trim())c.name=name.trim();saveSpLibrary();renderSpPage();}
+function spNormalizedLibrary(data){
+  if(!data||data.format!=='SugarPadUserLibrary'||Number(data.version)!==1||!Array.isArray(data.categories))throw new Error('SugarPad User Library v1ではありません');
+  const out={format:'SugarPadUserLibrary',version:1,exportedAt:data.exportedAt||new Date().toISOString(),categories:[]};
+  for(const c of data.categories){if(!c||typeof c.name!=='string'||!Array.isArray(c.items))continue;const nc={id:String(c.id||spId('cat')),name:c.name,order:Number(c.order)||out.categories.length+1,items:[]};for(const i of c.items){if(!i||typeof i.label!=='string'||typeof i.text!=='string')continue;nc.items.push({id:String(i.id||spId('item')),label:i.label,text:i.text,favorite:!!i.favorite,order:Number(i.order)||nc.items.length+1,createdAt:i.createdAt||new Date().toISOString(),updatedAt:i.updatedAt||new Date().toISOString()});}out.categories.push(nc);}return out;
+}
+function spExportLibrary(){const data={...spLibrary,exportedAt:new Date().toISOString()};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='SugarPad_UserLibrary_v1.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+async function spCopyLibraryJson(){try{await navigator.clipboard.writeText(JSON.stringify({...spLibrary,exportedAt:new Date().toISOString()},null,2));spToastMsg('UserライブラリJSONをコピーしました');}catch(e){spToastMsg('コピーできませんでした');}}
+function spMergeLibrary(incoming){
+  const mode=prompt('Import方式: add / replace','add');if(!mode)return;
+  localStorage.setItem(SP_LIBRARY+'_backup_'+Date.now(),JSON.stringify(spLibrary));
+  if(mode.toLowerCase()==='replace')spLibrary=incoming;
+  else{
+    const byCat=new Map((spLibrary.categories||[]).map(c=>[c.id,c]));
+    for(const c of incoming.categories){let dest=byCat.get(c.id);if(!dest){spLibrary.categories.push(c);byCat.set(c.id,c);continue;}const byItem=new Map((dest.items||[]).map(i=>[i.id,i]));for(const it of c.items){const old=byItem.get(it.id);if(old)Object.assign(old,it);else dest.items.push(it);}}
+  }
+  saveSpLibrary();spState.userCategory='root';renderSpPage();spToastMsg('Importしました');
+}
+spImportFile.addEventListener('change',async()=>{const f=spImportFile.files&&spImportFile.files[0];if(!f)return;try{const obj=spNormalizedLibrary(JSON.parse(await f.text()));spMergeLibrary(obj);}catch(e){alert('Importできません。\n'+e.message);}finally{spImportFile.value='';}});
+
+source.addEventListener('focus',rememberSpSelection);source.addEventListener('click',rememberSpSelection);source.addEventListener('keyup',rememberSpSelection);source.addEventListener('select',rememberSpSelection);
+source.addEventListener('input',()=>{rememberSpSelection();if(!spHistoryLock)spPushHistory(false);});
+source.addEventListener('beforeinput',()=>{if(!spHistoryLock&&source.value!==spLastValue)spPushHistory(true);});
+
+sugarPad.addEventListener('pointerdown',e=>{if(e.target!==spDrag){rememberSpSelection();e.preventDefault();}});
+sugarPad.querySelectorAll('[data-spcmd]').forEach(b=>b.addEventListener('click',()=>executeSpCommand(b.dataset.spcmd)));
+spMode.onclick=()=>{spState.mode=spState.mode==='mini'?'standard':'mini';applySpState();};
+spSKB.onclick=()=>{rememberSpSelection();spState.skb=!spState.skb;applySpState();focusSpSource();};
+spSize.onclick=()=>{spState.size=SP_SIZES[(SP_SIZES.indexOf(spState.size)+1)%SP_SIZES.length];applySpState();};
+spClose.onclick=()=>{spState.visible=false;applySpState();};
+sugarPadToggle.onclick=()=>{spState.visible=!spState.visible;applySpState();};
+spPrevPage.onclick=()=>{spState.page=(spState.page+SP_PAGES.length-1)%SP_PAGES.length;renderSpPage();saveSpState();};
+spNextPage.onclick=()=>{spState.page=(spState.page+1)%SP_PAGES.length;renderSpPage();saveSpState();};
+spDrag.addEventListener('pointerdown',e=>{e.preventDefault();spDrag.setPointerCapture(e.pointerId);const r=sugarPad.getBoundingClientRect();spDragState={id:e.pointerId,dx:e.clientX-r.left,dy:e.clientY-r.top};});
+spDrag.addEventListener('pointermove',e=>{if(!spDragState||spDragState.id!==e.pointerId)return;const q=clampSpPosition(e.clientX-spDragState.dx,e.clientY-spDragState.dy);sugarPad.style.left=q.x+'px';sugarPad.style.top=q.y+'px';});
+function endSpDrag(e){if(!spDragState||spDragState.id!==e.pointerId)return;const r=sugarPad.getBoundingClientRect();spState[spOrientationKey()]={x:r.left,y:r.top};spDragState=null;saveSpState();}
+spDrag.addEventListener('pointerup',endSpDrag);spDrag.addEventListener('pointercancel',endSpDrag);
+window.addEventListener('resize',()=>setTimeout(applySpPosition,60));
+loadSpState();
+/* ===== /SugarPad ===== */
+
 function saveSettingsOnly(){
   localStorage.setItem('kindleBoardSettings',JSON.stringify({
     font:fontSel.value,size:sizeSel.value,theme:themeSel.value,margin:marginSel.value,orientation:orientationSel.value,
@@ -1024,108 +1223,21 @@ preview.addEventListener('dblclick',e=>{
 
 window.addEventListener('resize',()=>requestAnimationFrame(scalePreviewCanvas));
 
-function getTemplateSettings(){
-  return {
-    font:fontSel.value,
-    size:sizeSel.value,
-    theme:themeSel.value,
-    margin:marginSel.value,
-    orientation:orientationSel.value,
-    textAlign:textAlignSel.value
-  };
-}
-
-function applyTemplateSettings(settings={}){
-  if(settings.font) fontSel.value=settings.font;
-  if(settings.size) sizeSel.value=settings.size;
-  if(settings.theme) themeSel.value=settings.theme;
-  if(settings.margin) marginSel.value=settings.margin;
-  if(settings.orientation) orientationSel.value=settings.orientation;
-  if(settings.textAlign) textAlignSel.value=settings.textAlign;
-}
-
-function loadUserTemplates(){
-  try{
-    const stored=JSON.parse(localStorage.getItem(USER_TEMPLATE_KEY)||'[]');
-    return Array.from({length:USER_TEMPLATE_SLOTS},(_,i)=>stored[i]||null);
-  }catch(e){
-    return Array(USER_TEMPLATE_SLOTS).fill(null);
-  }
-}
-
-function saveUserTemplates(templates){
-  localStorage.setItem(USER_TEMPLATE_KEY,JSON.stringify(templates));
-}
-
-function confirmTemplateOverwrite(){
-  if(!source.value.trim()) return true;
-  return confirm('現在の本文をテンプレートで上書きしますか？');
-}
-
-function applyTemplate(template,withSettings){
-  if(!confirmTemplateOverwrite()) return;
-  source.value=template.text||'';
-  if(withSettings) applyTemplateSettings(template.settings||{});
-  templateDialog.close();
-  render();
-  source.focus();
-}
-
-function renderTemplateMenu(){
-  const users=loadUserTemplates();
-  const builtCards=builtInTemplates.map((t,i)=>`<button type="button" class="builtin-card" data-built="${i}"><span class="builtin-icon">${esc(t.icon||'📄')}</span><span class="builtin-text"><strong>${esc(t.name)}</strong><small>${esc(t.description)}</small></span></button>`).join('');
-  const userRows=users.map((t,i)=>{
-    const name=t?.name||`ユーザー枠 ${i+1}（未登録）`;
-    return `<div class="user-row"><button type="button" class="user-name" ${t?`data-user-name="${i}" title="長押しで削除"`:'disabled'}>${esc(name)}</button>${t?`<button type="button" class="load-template" data-user-load="${i}">読込</button>`:'<span></span>'}<button type="button" data-user-save="${i}">${t?'保存':'登録'}</button></div>`;
-  }).join('');
-  templateBody.innerHTML=`<div class="template-section-title">組み込み例文</div><div class="builtin-grid">${builtCards}</div><div class="template-section-title">ユーザー例文</div><div class="user-list">${userRows}</div>`;
-
-  templateBody.querySelectorAll('[data-built]').forEach(btn=>btn.onclick=()=>applyTemplate(builtInTemplates[Number(btn.dataset.built)],false));
-  templateBody.querySelectorAll('[data-user-load]').forEach(btn=>btn.onclick=()=>applyTemplate(loadUserTemplates()[Number(btn.dataset.userLoad)],true));
-  templateBody.querySelectorAll('[data-user-save]').forEach(btn=>btn.onclick=()=>{
-    const index=Number(btn.dataset.userSave);
-    const current=loadUserTemplates();
-    if(current[index] && !confirm(`「${current[index].name}」を現在の内容で上書きしますか？`)) return;
-    const entered=prompt('テンプレート名を入力してください',current[index]?.name||`テンプレート ${index+1}`);
-    if(entered===null) return;
-    const name=entered.trim();
-    if(!name){ alert('テンプレート名を入力してください。'); return; }
-    current[index]={name,text:source.value,settings:getTemplateSettings()};
-    saveUserTemplates(current);
-    renderTemplateMenu();
-  });
-
-  const deleteUserTemplate=index=>{
-    const current=loadUserTemplates();
-    if(!current[index] || !confirm(`「${current[index].name}」を削除しますか？`)) return;
-    current[index]=null;
-    saveUserTemplates(current);
-    renderTemplateMenu();
-  };
-  templateBody.querySelectorAll('[data-user-name]').forEach(btn=>{
-    const index=Number(btn.dataset.userName);
-    let timer=null;
-    const cancel=()=>{if(timer){clearTimeout(timer);timer=null;}};
-    const startHold=e=>{cancel();timer=setTimeout(()=>{timer=null;deleteUserTemplate(index);},650);};
-    btn.addEventListener('pointerdown',startHold);
-    btn.addEventListener('pointerup',cancel);
-    btn.addEventListener('pointercancel',cancel);
-    btn.addEventListener('pointerleave',cancel);
-    btn.addEventListener('contextmenu',e=>{e.preventDefault();cancel();deleteUserTemplate(index);});
-  });
-}
 document.getElementById('sampleBtn').onclick=()=>{
-  renderTemplateMenu();
-  templateDialog.showModal();
+  if(source.value.trim() && source.value!==sample &&
+     !confirm('現在の入力内容を例文に置き換えますか？')) return;
+  source.value=sample;
+  render();
+  spPushHistory(true);
+  source.focus();
 };
-templateCloseBtn.onclick=()=>templateDialog.close();
-templateDialog.addEventListener('click',e=>{ if(e.target===templateDialog) templateDialog.close(); });
 
 document.getElementById('newBtn').onclick=()=>{
   if(source.value.trim() && source.value!==starter &&
      !confirm('現在の入力内容を破棄して、新しい掲示物を作成しますか？')) return;
   source.value=starter;
   render();
+  spPushHistory(true);
   source.focus();
   source.setSelectionRange(2,5);
 };
@@ -1241,7 +1353,10 @@ async function buildEpub(){
   <style>
     html,body{margin:0;padding:0;width:100%;height:100%;background:${themeSel.value==='dark'?'#121212':'#f7f7f2'}}
     img{display:block;width:100%;height:100%;object-fit:contain}
-  </style>
+  
+
+
+</style>
 </head>
 <body epub:type="cover">
   <img src="cover.png" alt="${xmlEscape(title)}"/>
@@ -1282,7 +1397,10 @@ async function buildEpub(){
       font-size:.95em;
       line-height:1.6;
     }
-  </style>
+  
+
+
+</style>
 </head>
 <body>
   <h1>Markdown原文</h1>
@@ -1446,13 +1564,16 @@ try{
   else outlineSel.value='on';
   if(settings.textAlign) textAlignSel.value=settings.textAlign;
 }catch(e){ source.value=starter; }
+spSavedSelection={start:source.value.length,end:source.value.length};
+spInitHistory();
+applySpState();
 (async()=>{ await loadBackgroundImage(); if(backgroundImageData) await processImageWithGLSL().catch(()=>processedImageData=backgroundImageData); render(); })();
 </script>
 
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(err => {
+    navigator.serviceWorker.register('./service-worker-v0.8b.js').catch(err => {
       console.warn('Service Worker registration failed:', err);
     });
   });
